@@ -1,0 +1,36 @@
+#kubectl apply -f app-inventario-deplyment.yml
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: app-inventario
+spec:
+  replicas: 4
+  selector:
+    matchLabels:
+      app: app-inventario
+  template:
+    metadata:
+      labels:
+        app: app-inventario
+    spec:
+      containers:
+        - name: app-inventario
+          image: nali1312/app-inventario
+          ports:
+            - containerPort: 8080
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: app-inventario-service
+spec:
+  type: ClusterIP
+  selector:
+    app: app-inventario
+  ports:
+    - protocol: TCP
+      port: 8080
+      targetPort: 8080
+
