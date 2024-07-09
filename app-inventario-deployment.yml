@@ -1,4 +1,3 @@
-#kubectl apply -f app-inventario-deplyment.yml
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -18,7 +17,29 @@ spec:
           image: nali1312/app-inventario
           ports:
             - containerPort: 8080
-
+          env:
+            - name: QUARKUS_DATASOURCE_DB_KIND
+              value: "postgresql"
+            - name: QUARKUS_DATASOURCE_USERNAME
+              value: "mw_inventario_user"
+            - name: QUARKUS_DATASOURCE_PASSWORD
+              value: "4aNcz4QWsMKbTDNnzKayn2xrZchejjXt"
+            - name: QUARKUS_DATASOURCE_JDBC_URL
+              value: "jdbc:postgresql://dpg-cpnjq75ds78s73b29eo0-a.oregon-postgres.render.com/mw_inventario"
+            - name: QUARKUS_DATASOURCE_JDBC_MAX_SIZE
+              value: "2"
+            - name: QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION
+              value: "update"
+            - name: QUARKUS_LOG_CATEGORY_ORG_HIBERNATE_LEVEL
+              value: "DEBUG"
+            - name: QUARKUS_OIDC_AUTH_SERVER_URL
+              value: "http://keycloak.keycloak:8080/realms/mweb"
+            - name: QUARKUS_OIDC_CLIENT_ID
+              value: "mweb-inventario"
+            - name: QUARKUS_OIDC_CREDENTIALS_SECRET
+              value: "dw7x1AsBllbkrD2fgIXPX75r0spuN33A"
+            - name: QUARKUS_OIDC_TLS_VERIFICATION
+              value: "none"
 
 ---
 apiVersion: v1
@@ -33,4 +54,3 @@ spec:
     - protocol: TCP
       port: 8080
       targetPort: 8080
-

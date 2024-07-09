@@ -31,6 +31,10 @@ dependencies {
 
     implementation("io.smallrye:smallrye-jwt-build") // SmallRye JWT Build
 
+//--rest client
+    implementation("io.quarkus:quarkus-rest-client-reactive")
+    implementation("io.quarkus:quarkus-rest-client-reactive-jackson")
+
 //// https://mvnrepository.com/artifact/io.quarkus/quarkus-oidc
 //    implementation("io.quarkus:quarkus-oidc")
 //
