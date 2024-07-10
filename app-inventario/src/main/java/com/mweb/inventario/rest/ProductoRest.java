@@ -39,7 +39,6 @@ public class ProductoRest {
 
 
     @POST
-    //////@RolesAllowed({"admin"})
     public Response registrarProducto(ProductoDTO obj) {
         try {
 
@@ -80,7 +79,6 @@ public class ProductoRest {
 
     @PUT
     @Path("/{codigoBarras}")
-    //@RolesAllowed({"admin"})
     public Response actualizarProducto(@PathParam("codigoBarras") String codigoBarras, ProductoDTO obj) {
         try {
             Optional<Producto> productoOpt = this.productoRepository.find("codigoBarras = ?1 AND activo =?2", codigoBarras, true).singleResultOptional();
@@ -124,7 +122,6 @@ public class ProductoRest {
 
     @GET
     @Path("/{codigoBarras}")
-    //@PermitAll
     public Response obtenerProductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras) {
         try {
             Optional<Producto> productoOpt = this.productoRepository.find("codigoBarras = ?1 AND activo =?2", codigoBarras, true).singleResultOptional();
@@ -143,7 +140,6 @@ public class ProductoRest {
     }
 
     @GET
-    //@PermitAll
     public Response listaProductos() {
         try {
             List<Producto> productosActivos = this.productoRepository.find("activo = ?1", true).list();
@@ -167,7 +163,6 @@ public class ProductoRest {
 
     @GET
     @Path("/buscar-por-nombre/{nombre}")
-    //@PermitAll
     public Response listaProductosPorNombre(@PathParam("nombre") String nombre) {
 
         try {
@@ -196,7 +191,6 @@ public class ProductoRest {
 
     @PATCH
     @Path("/{id}")
-    //@RolesAllowed({"admin"})
     public Response desactivarProducto(@PathParam("id") Integer id) {
         try {
             Optional<Producto> productoOptional = this.productoRepository.findByIdOptional(id);

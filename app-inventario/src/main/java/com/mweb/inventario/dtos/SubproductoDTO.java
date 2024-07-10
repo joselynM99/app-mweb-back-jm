@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @ToString
@@ -64,7 +66,13 @@ public class SubproductoDTO {
 		return ret;
 	}
 
-
+	public static List<SubproductoDTO> fromSubproductos(List<Subproducto> subproductos) {
+		List<SubproductoDTO> dtos = new ArrayList<>();
+		for (Subproducto subproducto : subproductos) {
+			dtos.add(from(subproducto));
+		}
+		return dtos;
+	}
 
 
 }

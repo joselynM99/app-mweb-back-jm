@@ -4,15 +4,13 @@ import com.mweb.inventario.db.Categoria;
 import com.mweb.inventario.db.Impuesto;
 import com.mweb.inventario.db.Producto;
 import com.mweb.inventario.db.Subproducto;
+import com.mweb.inventario.dtos.ProductoListaDTO;
+import com.mweb.inventario.dtos.SubproductoDTO;
 import com.mweb.inventario.repo.CategoriaRepository;
 import com.mweb.inventario.repo.ImpuestoRepository;
 import com.mweb.inventario.repo.ProductoRepository;
 import com.mweb.inventario.repo.SubproductoRepository;
-import com.mweb.inventario.dtos.ProductoListaDTO;
-import com.mweb.inventario.dtos.SubproductoDTO;
 import io.quarkus.panache.common.Parameters;
-import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -41,7 +39,6 @@ public class SubproductoRest {
 
 
     @POST
-    //@RolesAllowed({"admin"})
     public Response registrarSubproducto(SubproductoDTO obj) {
         try {
 
@@ -80,7 +77,6 @@ public class SubproductoRest {
 
     @PUT
     @Path("/{codigoBarras}")
-    //@RolesAllowed({"admin"})
     public Response actualizarSubproducto(@PathParam("codigoBarras") String codigoBarras, SubproductoDTO obj) {
         try {
             Optional<Subproducto> subproductoOpt = this.subproductoRepository.find("codigoBarras = ?1 AND activo =?2", codigoBarras, true).singleResultOptional();
@@ -122,7 +118,6 @@ public class SubproductoRest {
 
     @GET
     @Path("/{codigoBarras}")
-    //@PermitAll
     public Response obtenerSubproductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras) {
         try {
             Optional<Subproducto> subproductoOpt = this.subproductoRepository.find("codigoBarras = ?1 AND activo =?2", codigoBarras, true).singleResultOptional();
@@ -141,7 +136,6 @@ public class SubproductoRest {
     }
 
     @GET
-    //@PermitAll
     public Response listaSubproductos() {
         try {
             List<Subproducto> subproductosActivos = this.subproductoRepository.find("activo = ?1", true).list();
@@ -166,7 +160,6 @@ public class SubproductoRest {
 
     @GET
     @Path("/buscar-por-nombre/{nombre}")
-    //@PermitAll
     public Response listaSubproductosPorNombre(@PathParam("nombre") String nombre) {
 
         try {
@@ -179,7 +172,7 @@ public class SubproductoRest {
                         .build();
             }
 
-            List<ProductoListaDTO> subproductosDTO = ProductoListaDTO.fromSubproductos(subproductos);
+            List<SubproductoDTO> subproductosDTO = SubproductoDTO.fromSubproductos(subproductos);
             return Response.ok(subproductosDTO).build();
 
         } catch (Exception e) {
@@ -190,6 +183,40 @@ public class SubproductoRest {
         }
 
 
+    }
+
+
+    @GET
+    @Path("/buscar-por-producto/{codigo}")
+    public Response listaSubproductosPorProducto(@PathParam("codigo") String codigo) {
+        try {
+            Optional<Producto> productoOpt = this.productoRepository.find("codigoBarras", codigo).singleResultOptional();
+
+            if (productoOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("No se encontró el producto con el código de barras especificado")
+                        .build();
+            }
+
+            Producto producto = productoOpt.get();
+
+            List<Subproducto> subproductos = producto.getSubproductos();
+
+            if (subproductos.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("No se encontraron subproductos para el producto especificado")
+                        .build();
+            }
+
+            List<ProductoListaDTO> subproductosDTO = ProductoListaDTO.fromSubproductos(subproductos);
+            return Response.ok(subproductosDTO).build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Ha ocurrido un error al obtener los subproductos")
+                    .build();
+        }
     }
 
 

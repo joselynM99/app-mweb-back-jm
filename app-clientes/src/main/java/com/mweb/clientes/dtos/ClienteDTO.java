@@ -24,7 +24,7 @@ public class ClienteDTO {
 
     public static Cliente from(ClienteDTO obj) {
         Cliente cliente = new Cliente();
-        cliente.setId(obj.getId());
+//        cliente.setId(obj.getId());
         cliente.setTipoId(TipoIdentificacion.valueOf(obj.getTipoId()));
         cliente.setIdentificacion(obj.getIdentificacion());
         cliente.setApellidos(obj.getApellidos());

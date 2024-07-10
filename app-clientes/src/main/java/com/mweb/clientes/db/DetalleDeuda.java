@@ -38,10 +38,10 @@ public class DetalleDeuda {
 	private Deuda deuda;
 
 	@Column(name="prod_codigo_barras")
-	private Integer productoCodigo;
+	private String productoCodigo;
 	
 	@Column(name = "supr_codigo_barras")
-	private Integer subProductoCodigo;
+	private String subProductoCodigo;
 	
 	
 
