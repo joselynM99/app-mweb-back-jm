@@ -1,5 +1,6 @@
 package com.mweb.clientes.dtos;
 
+import com.mweb.clientes.db.Abono;
 import lombok.Data;
 import lombok.ToString;
 
@@ -13,6 +14,8 @@ public class ProductoCarritoDTO {
 	private BigDecimal precioVenta;
 	private BigDecimal subtotal;
 	private BigDecimal costoPromedio;
+	private BigDecimal precioSinImpuestos;
+
 	
 
 }

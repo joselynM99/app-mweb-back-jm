@@ -23,7 +23,7 @@ import java.util.Optional;
 public class ClienteRest {
 
     @Inject
-    private ClienteRepository clienteRepository;
+    ClienteRepository clienteRepository;
 
     @GET
     public Response listaClientes() {
