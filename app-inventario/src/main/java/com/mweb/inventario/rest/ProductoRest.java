@@ -65,6 +65,7 @@ public class ProductoRest {
                 ret.setImpuesto(impuestoOpt.get());
                 ret.setMarca(marcaOpt.get());
                 ret.setProveedor(proveedorOpt.get());
+                ret.setActivo(true);
 
                 this.productoRepository.persist(ret);
                 return Response.ok("Producto registrado exitosamente").build();
@@ -94,7 +95,6 @@ public class ProductoRest {
             ret.setPrecioSinImpuestos(obj.getPrecioSinImpuestos());
             ret.setPrecioVenta(obj.getPrecioVenta());
             ret.setStockActual(obj.getStockActual());
-            ret.setActivo(obj.isActivo());
 
             // Manejo de excepciones para las busquedas
             Optional<Proveedor> proveedorOpt = this.proveedorRepository.find("identificacion", obj.getProveedor()).firstResultOptional();
@@ -157,7 +157,6 @@ public class ProductoRest {
                     .entity("Ha ocurrido un error al obtener los productos")
                     .build();
         }
-
 
     }
 

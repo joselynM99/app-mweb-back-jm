@@ -44,53 +44,71 @@ public class DeudaRest {
             Deuda deuda = new Deuda();
             deuda.setEstado(true);
             deuda.setCliente(this.clienteRepository.find("identificacion = ?1 AND activo =?2", obj.getClienteId(), true).singleResult());
-
             List<DetalleDeuda> listaDet = new ArrayList<>();
 
-            for (ProductoCarritoDTO d : obj.getDetalles()) {
-                Response subproductoResponse = inventarioRestClient.obtenerSubproductoCodigoBarras(d.getCodigoBarras());
-                Response productoResponse = inventarioRestClient.obtenerProductoCodigoBarras(d.getCodigoBarras());
+            for (DetalleDeudaDTO d : obj.getDetalles()) {
+                try {
+                    Response subproductoResponse = inventarioRestClient.obtenerSubproductoCodigoBarras(d.getCodigoBarras());
+                    if (subproductoResponse.getStatus() == 200) {
+                        SubproductoDTO subproductoDTO = subproductoResponse.readEntity(SubproductoDTO.class);
+                        subproductoDTO.setStockActual(subproductoDTO.getStockActual() - d.getCantidad());
+                        inventarioRestClient.actualizarSubproducto(subproductoDTO.getCodigoBarras(), subproductoDTO);
 
-                if (subproductoResponse.getStatus() == 200) {
-                    SubproductoDTO subproductoDTO = subproductoResponse.readEntity(SubproductoDTO.class);
-                    subproductoDTO.setStockActual(subproductoDTO.getStockActual() - d.getCantidad());
-                    inventarioRestClient.actualizarSubproducto(subproductoDTO.getCodigoBarras(), subproductoDTO);
+                        Response productoSR = inventarioRestClient.obtenerProductoCodigoBarras(subproductoDTO.getProducto());
+                        ProductoDTO productoDTOS = productoSR.readEntity(ProductoDTO.class);
+                        productoDTOS.setStockActual(subproductoDTO.getStockActual() / subproductoDTO.getCantidadRelacionada());
+                        inventarioRestClient.actualizarProducto(productoDTOS.getCodigoBarras(), productoDTOS);
 
-                    Response productoSR = inventarioRestClient.obtenerProductoCodigoBarras(subproductoDTO.getProducto());
-                    ProductoDTO productoDTOS = productoSR.readEntity(ProductoDTO.class);
-                    productoDTOS.setStockActual(subproductoDTO.getStockActual() / subproductoDTO.getCantidadRelacionada());
-                    inventarioRestClient.actualizarProducto(productoDTOS.getCodigoBarras(), productoDTOS);
-
-                    DetalleDeuda detalleDeuda = new DetalleDeuda();
-                    detalleDeuda.setCantidad(d.getCantidad());
-                    detalleDeuda.setTotal(d.getSubtotal());
-                    detalleDeuda.setSubProductoCodigo(d.getCodigoBarras());
-                    detalleDeudaRepository.persist(detalleDeuda);
-                    listaDet.add(detalleDeuda);
-                } else {
-                    ProductoDTO productoDTO = productoResponse.readEntity(ProductoDTO.class);
-                    productoDTO.setStockActual(productoDTO.getStockActual() - d.getCantidad());
-                    inventarioRestClient.actualizarProducto(productoDTO.getCodigoBarras(), productoDTO);
-
-                    Response subproductosR = inventarioRestClient.listaSubproductosPorProducto(productoDTO.getCodigoBarras());
-
-                    if (subproductosR.getStatus() == 200) {
-                        List<SubproductoDTO> subproductos = subproductosR.readEntity(new GenericType<List<SubproductoDTO>>() {
-                        });
-
-                        for (SubproductoDTO sub : subproductos) {
-                            sub.setStockActual(sub.getStockActual() - (sub.getCantidadRelacionada() * d.getCantidad()));
-                            inventarioRestClient.actualizarSubproducto(sub.getCodigoBarras(), sub);
-                        }
+                        DetalleDeuda detalleDeuda = new DetalleDeuda();
+                        detalleDeuda.setCantidad(d.getCantidad());
+                        detalleDeuda.setTotal(d.getSubtotal());
+                        detalleDeuda.setSubProductoCodigo(d.getCodigoBarras());
+                        detalleDeudaRepository.persist(detalleDeuda);
+                        listaDet.add(detalleDeuda);
                     }
+                } catch (jakarta.ws.rs.WebApplicationException ex) {
+                    if (ex.getResponse().getStatus() == 404) {
+                        try {
+                            Response productoResponse = inventarioRestClient.obtenerProductoCodigoBarras(d.getCodigoBarras());
+                            if (productoResponse.getStatus() == 200) {
+                                ProductoDTO productoDTO = productoResponse.readEntity(ProductoDTO.class);
+                                productoDTO.setStockActual(productoDTO.getStockActual() - d.getCantidad());
+                                inventarioRestClient.actualizarProducto(productoDTO.getCodigoBarras(), productoDTO);
+                                DetalleDeuda detalleDeuda = new DetalleDeuda();
+                                detalleDeuda.setCantidad(d.getCantidad());
+                                detalleDeuda.setTotal(d.getSubtotal());
+                                detalleDeuda.setProductoCodigo(d.getCodigoBarras());
+                                detalleDeudaRepository.persist(detalleDeuda);
+                                listaDet.add(detalleDeuda);
+                                try {
+                                    Response subproductosR = inventarioRestClient.listaSubproductosPorProducto(productoDTO.getCodigoBarras());
+                                    if (subproductosR.getStatus() == 200) {
+                                        List<SubproductoDTO> subproductos = subproductosR.readEntity(new GenericType<List<SubproductoDTO>>() {
+                                        });
 
-                    DetalleDeuda detalleDeuda = new DetalleDeuda();
-                    detalleDeuda.setCantidad(d.getCantidad());
-                    detalleDeuda.setTotal(d.getSubtotal());
-                    detalleDeuda.setProductoCodigo(d.getCodigoBarras());
-                    detalleDeudaRepository.persist(detalleDeuda);
-                    listaDet.add(detalleDeuda);
+                                        for (SubproductoDTO sub : subproductos) {
+                                            sub.setStockActual(sub.getStockActual() - (sub.getCantidadRelacionada() * d.getCantidad()));
+                                            inventarioRestClient.actualizarSubproducto(sub.getCodigoBarras(), sub);
+                                        }
 
+                                    }
+                                } catch (WebApplicationException e) {
+                                    if (e.getResponse().getStatus() != 404) {
+                                        throw e;
+                                    }
+                                }
+
+                            }
+                        } catch (jakarta.ws.rs.WebApplicationException e) {
+                            if (e.getResponse().getStatus() == 404) {
+                                return Response.status(Response.Status.NOT_FOUND).entity("Producto o subproducto no encontrado: " + d.getCodigoBarras()).build();
+                            } else {
+                                throw e;
+                            }
+                        }
+                    } else {
+                        throw ex;
+                    }
                 }
             }
 
@@ -99,11 +117,11 @@ public class DeudaRest {
             deuda.setTotal(obj.getTotal());
             this.deudaRepository.persist(deuda);
 
-            return Response.ok(deuda).build();
+            for (DetalleDeuda detalleDeuda : listaDet) {
+                detalleDeuda.setDeuda(deuda);
+            }
 
-//            for (DetalleDeuda detalleDeuda: listaDet){
-//                detalleDeuda.setDeuda(deuda);
-//            }
+            return Response.ok("Deuda generada con éxito").build();
 
         } catch (Exception e) {
             e.printStackTrace(); // Puedes registrar el error para el seguimiento
@@ -121,6 +139,7 @@ public class DeudaRest {
             }
 
             List<DeudaDTO> deudaDTOS = DeudaDTO.fromDeudasDTO(deudas);
+
             return Response.ok(deudaDTOS).build();
 
         } catch (Exception e) {
@@ -133,50 +152,45 @@ public class DeudaRest {
 
     @GET
     @Path("/{id}")
-    public Response obteneDeuda(@PathParam("id") Integer id) {
+    public Response obtenerDeuda(@PathParam("id") Integer id) {
         try {
             Optional<Deuda> deudaOptional = this.deudaRepository.findByIdOptional(id);
             if (deudaOptional.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("Deuda no encontrada").build();
             }
             DeudaDTO deudaDTO = DeudaDTO.from(deudaOptional.get());
-
             List<AbonoDTO> abonos = AbonoDTO.fromAbonoDTO(deudaOptional.get().getAbonos());
             deudaDTO.setAbonos(abonos);
 
-            List<ProductoCarritoDTO> productos = new ArrayList<>();
-
+            List<DetalleDeudaDTO> productos = new ArrayList<>();
             for (DetalleDeuda detalleDeuda : deudaOptional.get().getDetalles()) {
                 if (detalleDeuda.getProductoCodigo() != null && !detalleDeuda.getProductoCodigo().isEmpty()) {
 
                     Response productoR = inventarioRestClient.obtenerProductoCodigoBarras(detalleDeuda.getProductoCodigo());
                     ProductoDTO productoDTO = productoR.readEntity(ProductoDTO.class);
 
-                    ProductoCarritoDTO productoCarritoDTO = new ProductoCarritoDTO();
-                    productoCarritoDTO.setCantidad(detalleDeuda.getCantidad());
-                    productoCarritoDTO.setNombre(productoDTO.getNombre());
-                    productoCarritoDTO.setCodigoBarras(productoDTO.getCodigoBarras());
-                    productoCarritoDTO.setSubtotal(detalleDeuda.getTotal());
-                    productoCarritoDTO.setPrecioVenta(productoDTO.getPrecioVenta());
-                    productoCarritoDTO.setCostoPromedio(productoDTO.getCostoPromedio());
-                    productoCarritoDTO.setPrecioSinImpuestos(productoDTO.getPrecioSinImpuestos());
+                    DetalleDeudaDTO detalleDeudaDTO = new DetalleDeudaDTO();
+                    detalleDeudaDTO.setCantidad(detalleDeuda.getCantidad());
+                    detalleDeudaDTO.setNombre(productoDTO.getNombre());
+                    detalleDeudaDTO.setCodigoBarras(productoDTO.getCodigoBarras());
+                    detalleDeudaDTO.setSubtotal(detalleDeuda.getTotal());
+                    detalleDeudaDTO.setPrecioVenta(productoDTO.getPrecioVenta());
 
-                    productos.add(productoCarritoDTO);
+
+                    productos.add(detalleDeudaDTO);
 
                 } else if (detalleDeuda.getSubProductoCodigo() != null && !detalleDeuda.getSubProductoCodigo().isEmpty()) {
                     Response subproductoR = inventarioRestClient.obtenerSubproductoCodigoBarras(detalleDeuda.getSubProductoCodigo());
                     SubproductoDTO subproductoDTO = subproductoR.readEntity(SubproductoDTO.class);
 
-                    ProductoCarritoDTO productoCarritoDTO = new ProductoCarritoDTO();
-                    productoCarritoDTO.setCantidad(detalleDeuda.getCantidad());
-                    productoCarritoDTO.setNombre(subproductoDTO.getNombre());
-                    productoCarritoDTO.setCodigoBarras(subproductoDTO.getCodigoBarras());
-                    productoCarritoDTO.setSubtotal(detalleDeuda.getTotal());
-                    productoCarritoDTO.setPrecioVenta(subproductoDTO.getPrecioVenta());
-                    productoCarritoDTO.setCostoPromedio(subproductoDTO.getCostoPromedio());
-                    productoCarritoDTO.setPrecioSinImpuestos(subproductoDTO.getPrecioSinImpuestos());
+                    DetalleDeudaDTO detalleDeudaDTO = new DetalleDeudaDTO();
+                    detalleDeudaDTO.setCantidad(detalleDeuda.getCantidad());
+                    detalleDeudaDTO.setNombre(subproductoDTO.getNombre());
+                    detalleDeudaDTO.setCodigoBarras(subproductoDTO.getCodigoBarras());
+                    detalleDeudaDTO.setSubtotal(detalleDeuda.getTotal());
+                    detalleDeudaDTO.setPrecioVenta(subproductoDTO.getPrecioVenta());
 
-                    productos.add(productoCarritoDTO);
+                    productos.add(detalleDeudaDTO);
                 }
 
                 deudaDTO.setDetalles(productos);

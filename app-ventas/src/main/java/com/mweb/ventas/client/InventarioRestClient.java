@@ -1,7 +1,8 @@
-package com.mweb.clientes.client;
+package com.mweb.ventas.client;
 
-import com.mweb.clientes.dtos.ProductoDTO;
-import com.mweb.clientes.dtos.SubproductoDTO;
+
+import com.mweb.ventas.dtos.ProductoDTO;
+import com.mweb.ventas.dtos.SubproductoDTO;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
@@ -12,6 +13,21 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @Consumes(MediaType.APPLICATION_JSON)
 @RegisterRestClient(configKey = "InventarioRestClient")
 public interface InventarioRestClient {
+    @GET
+    @Path("/productos")
+    Response listaProductos();
+
+    @GET
+    @Path("/subproductos")
+    Response listaSubproductos();
+    @GET
+    @Path("/subproductos/buscar-por-nombre/{nombre}")
+    Response listaSubproductosPorNombre(@PathParam("nombre") String nombre);
+
+    @GET
+    @Path("/productos/buscar-por-nombre/{nombre}")
+    Response listaProductosPorNombre(@PathParam("nombre") String nombre);
+
     @GET
     @Path("/subproductos/{codigoBarras}")
     Response obtenerSubproductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras);
@@ -31,4 +47,5 @@ public interface InventarioRestClient {
     @GET
     @Path("/subproductos/buscar-por-producto/{codigo}")
     Response listaSubproductosPorProducto(@PathParam("codigo") String codigo);
+
 }

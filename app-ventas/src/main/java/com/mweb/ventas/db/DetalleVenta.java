@@ -1,5 +1,5 @@
 
-package com.mweb.clientes.db;
+package com.mweb.ventas.db;
 
 import java.math.BigDecimal;
 
@@ -18,31 +18,30 @@ import org.hibernate.annotations.BatchSize;
 
 @Entity
 @Data
-@Table(name = "detalle_deuda")
-public class DetalleDeuda {
+@Table(name = "detalle_venta")
+public class DetalleVenta {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_detalle_venta")
 	@SequenceGenerator(name = "seq_detalle_venta", sequenceName = "seq_detalle_venta", allocationSize = 1)
-	@Column(name = "dede_id")
+	@Column(name = "deve_id")
 	private Integer id;
 
-	@Column(name = "dede_cantidad")
+	@Column(name = "deve_cantidad")
 	private Double cantidad;
 
-	@Column(name = "dede_total")
+	@Column(name = "deve_total")
 	private BigDecimal total;
 
 	@ManyToOne
-	@JoinColumn(name = "deuda_id")
-	private Deuda deuda;
+	@JoinColumn(name = "vent_id")
+	private Venta venta;
 
 	@Column(name="prod_codigo_barras")
 	private String productoCodigo;
-	
+
 	@Column(name = "supr_codigo_barras")
 	private String subProductoCodigo;
-	
-	
+
 
 }

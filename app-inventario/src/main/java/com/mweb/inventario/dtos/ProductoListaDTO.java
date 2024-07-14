@@ -23,6 +23,7 @@ public class ProductoListaDTO {
 	private BigDecimal precioVenta;
 	private Double stockActual;
 	private boolean activo;
+	private Integer cantidadRelacionada;
 
 
 	public static Producto from(ProductoListaDTO obj){

@@ -16,7 +16,6 @@ public class DeudaDTO {
 
     private Integer id;
 
-
     private BigDecimal total;
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime fecha;
@@ -24,7 +23,7 @@ public class DeudaDTO {
 
     private String clienteId;
     private String clienteNombre;
-    private List<ProductoCarritoDTO> detalles;
+    private List<DetalleDeudaDTO> detalles;
     private List<AbonoDTO> abonos;
 
     public static Deuda from(DeudaDTO obj) {
@@ -53,6 +52,7 @@ public class DeudaDTO {
         for (Deuda deuda : deudas) {
             DeudaDTO d = from(deuda);
             d.setId(deuda.getId());
+
             dtos.add(d);
         }
         return dtos;

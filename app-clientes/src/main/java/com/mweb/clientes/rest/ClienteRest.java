@@ -49,10 +49,9 @@ public class ClienteRest {
     @GET
     @Path("/buscar-por-nombre/{nombre}")
     public Response listaClientesPorNombre(@PathParam("nombre") String nombre) {
-
         try {
-            String consulta = "LOWER(nombre) LIKE CONCAT('%', :nombre, '%') AND activo = true";
-            List<Cliente> clientes = this.clienteRepository.list(consulta, Parameters.with("nombre", nombre.toLowerCase()).map());
+            String consulta = "FROM Cliente c WHERE (LOWER(c.nombres) LIKE CONCAT('%', :nombre, '%') OR LOWER(c.apellidos) LIKE CONCAT('%', :nombre, '%')) AND c.activo = true";
+            List<Cliente> clientes = clienteRepository.find(consulta, Parameters.with("nombre", nombre.toLowerCase())).list();
 
             if (clientes.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND)
@@ -62,18 +61,13 @@ public class ClienteRest {
 
             List<ClienteDTO> clientesDTO = ClienteDTO.fromClientesDTO(clientes);
             return Response.ok(clientesDTO).build();
-
         } catch (Exception e) {
             e.printStackTrace();
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("Ha ocurrido un error al obtener los clientes")
                     .build();
         }
-
-
     }
-
-
     @GET
     @Path("/{identificacion}")
     public Response obtenerClientePorIdentificacion(@PathParam("identificacion") String identificacion) {
@@ -125,10 +119,11 @@ public class ClienteRest {
 
             if (producto.isPresent()) {
                 return Response.status(Response.Status.CONFLICT)
-                        .entity("Ya existe un cliente con el mismo código de barras")
+                        .entity("Ya existe un cliente con el mismo número de identificación")
                         .build();
             } else {
                 Cliente ret = ClienteDTO.from(obj);
+                ret.setActivo(true);
                 this.clienteRepository.persist(ret);
                 return Response.ok("Cliente registrado exitosamente").build();
             }
@@ -142,7 +137,7 @@ public class ClienteRest {
 
     @PUT
     @Path("/{identificacion}")
-    public Response actualizarProducto(@PathParam("identificacion") String identificacion, ClienteDTO obj) {
+    public Response actualizarCliente(@PathParam("identificacion") String identificacion, ClienteDTO obj) {
         try {
             Optional<Cliente> clienteOptional = this.clienteRepository.find("identificacion = ?1 AND activo =?2", identificacion, true).singleResultOptional();
             if (clienteOptional.isEmpty()) {

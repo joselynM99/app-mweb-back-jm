@@ -18,6 +18,7 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -92,7 +93,6 @@ public class SubproductoRest {
             ret.setPrecioSinImpuestos(obj.getPrecioSinImpuestos());
             ret.setPrecioVenta(obj.getPrecioVenta());
             ret.setStockActual(obj.getStockActual());
-            ret.setActivo(obj.isActivo());
 
             // Manejo de excepciones para las busquedas
             Optional<Producto> producto = this.productoRepository.find("codigoBarras", obj.getProducto()).singleResultOptional();
@@ -146,6 +146,8 @@ public class SubproductoRest {
             }
 
             List<ProductoListaDTO> subproductosDTO = ProductoListaDTO.fromSubproductos(subproductosActivos);
+
+
             return Response.ok(subproductosDTO).build();
 
         } catch (Exception e) {
@@ -208,7 +210,7 @@ public class SubproductoRest {
                         .build();
             }
 
-            List<ProductoListaDTO> subproductosDTO = ProductoListaDTO.fromSubproductos(subproductos);
+            List<SubproductoDTO> subproductosDTO = SubproductoDTO.fromSubproductos(subproductos);
             return Response.ok(subproductosDTO).build();
 
         } catch (Exception e) {

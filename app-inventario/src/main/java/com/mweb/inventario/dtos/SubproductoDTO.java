@@ -21,7 +21,6 @@ public class SubproductoDTO {
 	private BigDecimal precioVenta;
 	private Double stockActual;
 	private boolean activo;
-	private String proveedor;
 	private Integer impuesto;
 	private Integer categoria;
 	private Integer marca;
@@ -60,7 +59,6 @@ public class SubproductoDTO {
 		ret.setCategoria(obj.getCategoria().getId());
 		ret.setMarca(obj.getProducto().getMarca().getId());
 		ret.setImpuesto(obj.getImpuesto().getId());
-		ret.setProveedor(obj.getProducto().getProveedor().getIdentificacion());
 		ret.setProducto(obj.getProducto().getCodigoBarras());
 
 		return ret;

@@ -27,7 +27,6 @@ public class ProveedorRest {
     ProveedorRepository proveedorRepository;
 
     @POST
-    //@RolesAllowed({"admin"})
     public Response registrarProveedor(ProveedorDTO obj) {
         try {
 
@@ -39,6 +38,7 @@ public class ProveedorRest {
                         .build();
             } else {
                 Proveedor ret = ProveedorDTO.from(obj);
+                ret.setActivo(true);
                 this.proveedorRepository.persist(ret);
                 return Response.ok("Proveedor registrado exitosamente").build();
             }
@@ -53,7 +53,6 @@ public class ProveedorRest {
 
     @PUT
     @Path("/{identificacion}")
-    //@RolesAllowed({"admin"})
     public Response actualizarProveedor(@PathParam("identificacion") String identificacion, ProveedorDTO obj) {
         try {
             Optional<Proveedor> proveedorOpt = this.proveedorRepository.find("identificacion = ?1 AND activo =?2", identificacion, true).singleResultOptional();
@@ -70,7 +69,6 @@ public class ProveedorRest {
             proveedor.setTelefono(obj.getTelefono());
             proveedor.setCorreo(obj.getCorreo());
             proveedor.setDireccion(obj.getDireccion());
-            proveedor.setActivo(obj.isActivo());
 
             return Response.ok("Proveedor actualizado exitosamente").build();
 
@@ -85,7 +83,6 @@ public class ProveedorRest {
 
     @GET
     @Path("/{identificacion}")
-    //@RolesAllowed({"admin"})
     public Response obtenerProveedorIdentificacion(@PathParam("identificacion") String identificacion) {
         try {
 
@@ -106,7 +103,6 @@ public class ProveedorRest {
     }
 
     @GET
-    //@RolesAllowed({"admin"})
     public Response listaProveedores() {
         try {
             List<Proveedor> proveedoresActivos = this.proveedorRepository.find("activo = ?1", true).list();
@@ -160,7 +156,6 @@ public class ProveedorRest {
 
     @PATCH
     @Path("/{id}")
-    //@RolesAllowed({"admin"})
     public Response desactivarProveedor(@PathParam("id") Integer id) {
         try {
             Optional<Proveedor> proveedorOptional = this.proveedorRepository.findByIdOptional(id);
