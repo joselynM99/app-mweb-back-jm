@@ -14,11 +14,11 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 public interface InventarioRestClient {
     @GET
     @Path("/subproductos/{codigoBarras}")
-    Response obtenerSubproductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras);
+    Response obtenerSubproductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras, @QueryParam("idNegocio") Integer idNegocio);
 
     @GET
     @Path("/productos/{codigoBarras}")
-    Response obtenerProductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras);
+    Response obtenerProductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras, @QueryParam("idNegocio") Integer idNegocio);
 
     @PUT
     @Path("/productos/{codigoBarras}")
@@ -30,5 +30,5 @@ public interface InventarioRestClient {
 
     @GET
     @Path("/subproductos/buscar-por-producto/{codigo}")
-    Response listaSubproductosPorProducto(@PathParam("codigo") String codigo);
+    Response listaSubproductosPorProducto(@PathParam("codigo") String codigo, @QueryParam("idNegocio") Integer idNegocio);
 }

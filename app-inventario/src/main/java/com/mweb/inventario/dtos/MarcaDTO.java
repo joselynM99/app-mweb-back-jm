@@ -10,5 +10,6 @@ public class MarcaDTO {
 
     private Integer id;
     private String nombre;
+    private Integer idNegocio;
     private boolean activo;
 }

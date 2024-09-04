@@ -11,6 +11,8 @@ import com.mweb.inventario.repo.ImpuestoRepository;
 import com.mweb.inventario.repo.ProductoRepository;
 import com.mweb.inventario.repo.SubproductoRepository;
 import io.quarkus.panache.common.Parameters;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -18,7 +20,6 @@ import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,12 +41,11 @@ public class SubproductoRest {
 
 
     @POST
+    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
     public Response registrarSubproducto(SubproductoDTO obj) {
         try {
-
-            Optional<Producto> producto = this.productoRepository.find("codigoBarras", obj.getCodigoBarras()).singleResultOptional();
-            Optional<Subproducto> subproducto = this.subproductoRepository.find("codigoBarras", obj.getCodigoBarras()).singleResultOptional();
-
+            Optional<Producto> producto = this.productoRepository.find("codigoBarras = ?1 AND activo = true AND idNegocio = ?2", obj.getCodigoBarras(), obj.getIdNegocio()).singleResultOptional();
+            Optional<Subproducto> subproducto = this.subproductoRepository.find("codigoBarras = ?1 AND activo = true AND idNegocio = ?2", obj.getCodigoBarras(), obj.getIdNegocio()).singleResultOptional();
             if (producto.isPresent() || subproducto.isPresent()) {
                 return Response.status(Response.Status.CONFLICT)
                         .entity("Ya existe un producto o subproducto con el mismo código de barras")
@@ -55,7 +55,7 @@ public class SubproductoRest {
 
                 Optional<Impuesto> impuestoOpt = this.impuestoRepository.findByIdOptional(obj.getImpuesto());
                 Optional<Categoria> categoriaOpt = this.categoriaRepository.findByIdOptional(obj.getCategoria());
-                producto = this.productoRepository.find("codigoBarras", obj.getProducto()).singleResultOptional();
+                producto = this.productoRepository.find("codigoBarras = ?1 AND idNegocio = ?2", obj.getProducto(), obj.getIdNegocio()).singleResultOptional();
 
                 if (impuestoOpt.isEmpty() || categoriaOpt.isEmpty() || producto.isEmpty()) {
                     return Response.status(Response.Status.BAD_REQUEST).entity("Producto, Impuesto o Categoria no encontrados").build();
@@ -64,6 +64,8 @@ public class SubproductoRest {
                 ret.setProducto(producto.get());
                 ret.setCategoria(categoriaOpt.get());
                 ret.setImpuesto(impuestoOpt.get());
+                ret.setActivo(true);
+                ret.setIdNegocio(obj.getIdNegocio());
 
                 this.subproductoRepository.persist(ret);
                 return Response.ok("Subproducto registrado exitosamente").build();
@@ -78,9 +80,10 @@ public class SubproductoRest {
 
     @PUT
     @Path("/{codigoBarras}")
+    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
     public Response actualizarSubproducto(@PathParam("codigoBarras") String codigoBarras, SubproductoDTO obj) {
         try {
-            Optional<Subproducto> subproductoOpt = this.subproductoRepository.find("codigoBarras = ?1 AND activo =?2", codigoBarras, true).singleResultOptional();
+            Optional<Subproducto> subproductoOpt = this.subproductoRepository.find("codigoBarras = ?1 AND activo =?2 AND idNegocio = ?3", codigoBarras, true, obj.getIdNegocio()).singleResultOptional();
             if (subproductoOpt.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("Subproducto no encontrado").build();
             }
@@ -95,7 +98,7 @@ public class SubproductoRest {
             ret.setStockActual(obj.getStockActual());
 
             // Manejo de excepciones para las busquedas
-            Optional<Producto> producto = this.productoRepository.find("codigoBarras", obj.getProducto()).singleResultOptional();
+            Optional<Producto> producto = this.productoRepository.find("codigoBarras = ?1 AND idNegocio = ?2", obj.getProducto(), obj.getIdNegocio()).singleResultOptional();
             Optional<Impuesto> impuestoOpt = this.impuestoRepository.findByIdOptional(obj.getImpuesto());
             Optional<Categoria> categoriaOpt = this.categoriaRepository.findByIdOptional(obj.getCategoria());
 
@@ -106,6 +109,7 @@ public class SubproductoRest {
             ret.setCategoria(categoriaOpt.get());
             ret.setImpuesto(impuestoOpt.get());
             ret.setProducto(producto.get());
+            ret.setIdNegocio(obj.getIdNegocio());
             return Response.ok("Subproducto actualizado exitosamente").build();
 
         } catch (Exception e) {
@@ -118,9 +122,10 @@ public class SubproductoRest {
 
     @GET
     @Path("/{codigoBarras}")
-    public Response obtenerSubproductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras) {
+    @PermitAll
+    public Response obtenerSubproductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras, @QueryParam("idNegocio") Integer idNegocio) {
         try {
-            Optional<Subproducto> subproductoOpt = this.subproductoRepository.find("codigoBarras = ?1 AND activo =?2", codigoBarras, true).singleResultOptional();
+            Optional<Subproducto> subproductoOpt = this.subproductoRepository.find("codigoBarras = ?1 AND activo =?2 AND idNegocio = ?3", codigoBarras, true, idNegocio).singleResultOptional();
             if (subproductoOpt.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("Subproducto no encontrado").build();
             }
@@ -136,18 +141,16 @@ public class SubproductoRest {
     }
 
     @GET
-    public Response listaSubproductos() {
+    @PermitAll
+    public Response listaSubproductos(@QueryParam("idNegocio") Integer idNegocio) {
         try {
-            List<Subproducto> subproductosActivos = this.subproductoRepository.find("activo = ?1", true).list();
-
+            List<Subproducto> subproductosActivos = this.subproductoRepository.find("activo = ?1 AND idNegocio = ?2", true, idNegocio).list();
 
             if (subproductosActivos.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron subproductos").build();
             }
 
             List<ProductoListaDTO> subproductosDTO = ProductoListaDTO.fromSubproductos(subproductosActivos);
-
-
             return Response.ok(subproductosDTO).build();
 
         } catch (Exception e) {
@@ -156,17 +159,15 @@ public class SubproductoRest {
                     .entity("Ha ocurrido un error al obtener los subproductos")
                     .build();
         }
-
-
     }
 
     @GET
     @Path("/buscar-por-nombre/{nombre}")
-    public Response listaSubproductosPorNombre(@PathParam("nombre") String nombre) {
-
+    @PermitAll
+    public Response listaSubproductosPorNombre(@PathParam("nombre") String nombre, @QueryParam("idNegocio") Integer idNegocio) {
         try {
-            String consulta = "LOWER(nombre) LIKE CONCAT('%', :nombre, '%') AND activo = true";
-            List<Subproducto> subproductos = this.subproductoRepository.list(consulta, Parameters.with("nombre", nombre.toLowerCase()).map());
+            String consulta = "LOWER(nombre) LIKE CONCAT('%', :nombre, '%') AND activo = true AND idNegocio = :idNegocio";
+            List<Subproducto> subproductos = this.subproductoRepository.list(consulta, Parameters.with("nombre", nombre.toLowerCase()).and("idNegocio", idNegocio).map());
 
             if (subproductos.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND)
@@ -183,17 +184,14 @@ public class SubproductoRest {
                     .entity("Ha ocurrido un error al obtener los subproductos")
                     .build();
         }
-
-
     }
-
 
     @GET
     @Path("/buscar-por-producto/{codigo}")
-    public Response listaSubproductosPorProducto(@PathParam("codigo") String codigo) {
+    @PermitAll
+    public Response listaSubproductosPorProducto(@PathParam("codigo") String codigo, @QueryParam("idNegocio") Integer idNegocio) {
         try {
-            Optional<Producto> productoOpt = this.productoRepository.find("codigoBarras", codigo).singleResultOptional();
-
+            Optional<Producto> productoOpt = this.productoRepository.find("codigoBarras = ?1 AND idNegocio = ?2 AND activo = true", codigo, idNegocio).singleResultOptional();
             if (productoOpt.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND)
                         .entity("No se encontró el producto con el código de barras especificado")
@@ -220,6 +218,41 @@ public class SubproductoRest {
                     .build();
         }
     }
+
+    @GET
+    @Path("/buscar-por-producto/{codigo}/proveedor/{proveedorId}")
+    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    public Response listaSubproductosPorProductoYProveedor(@PathParam("codigo") String codigo, @PathParam("proveedorId") String proveedorId, @QueryParam("idNegocio") Integer idNegocio) {
+        try {
+            Optional<Producto> productoOpt = this.productoRepository.find("codigoBarras = ?1 AND idNegocio = ?2 AND activo = true AND proveedor.identificacion = ?3", codigo, idNegocio, proveedorId).singleResultOptional();
+            if (productoOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("No se encontró el producto con el código de barras y proveedor especificados")
+                        .build();
+            }
+
+            Producto producto = productoOpt.get();
+
+            List<Subproducto> subproductos = producto.getSubproductos();
+
+            if (subproductos.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("No se encontraron subproductos para el producto y proveedor especificados")
+                        .build();
+            }
+
+            List<SubproductoDTO> subproductosDTO = SubproductoDTO.fromSubproductos(subproductos);
+            return Response.ok(subproductosDTO).build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Ha ocurrido un error al obtener los subproductos")
+                    .build();
+        }
+    }
+
+
 
 
     @PATCH

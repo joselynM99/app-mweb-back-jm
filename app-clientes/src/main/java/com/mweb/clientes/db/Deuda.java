@@ -40,6 +40,12 @@ public class Deuda {
 	@Column(name = "deud_estado")
 	private Boolean estado;
 
+	@Column(name = "deud_numero_referencia")
+	private Integer numeroReferencia;
+
+	@Column(name = "deud_id_negocio")
+	private Integer idNegocio;
+
 	@OneToMany(mappedBy = "deuda", cascade = CascadeType.ALL)
 	private List<DetalleDeuda> detalles;
 	

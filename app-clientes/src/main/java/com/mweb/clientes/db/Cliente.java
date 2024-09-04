@@ -32,7 +32,7 @@ public class Cliente {
 	@Column(name = "clie_tipo_id")
 	private TipoIdentificacion tipoId;
 	
-	@Column(name = "clie_identificacion", unique = true)
+	@Column(name = "clie_identificacion")
 	private String identificacion;
 	
 	@Column(name = "clie_apellidos")
@@ -52,6 +52,9 @@ public class Cliente {
 
 	@Column(name = "clie_activo")
 	private boolean activo;
+
+	@Column(name = "clie_id_negocio")
+	private Integer idNegocio;
 
 	@OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)
 	private List<Deuda> deudas;

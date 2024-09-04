@@ -16,7 +16,7 @@ public class Subproducto {
     @Column(name = "supr_id")
     private Integer id;
 
-    @Column(name = "supr_codigo_barras", unique = true, nullable = false)
+    @Column(name = "supr_codigo_barras", nullable = false)
     private String codigoBarras;
 
     @Column(name = "supr_nombre", nullable = false)
@@ -39,6 +39,9 @@ public class Subproducto {
 
     @Column(name = "supr_stock_actual")
     private Double stockActual;
+
+    @Column(name = "supr_id_negocio")
+    private Integer idNegocio;
 
     @Column(name = "supr_activo")
     private boolean activo;

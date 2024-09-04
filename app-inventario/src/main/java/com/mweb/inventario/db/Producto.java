@@ -18,7 +18,7 @@ public class Producto {
     @Column(name = "prod_id")
     private Integer id;
 
-    @Column(name = "prod_codigo_barras", unique = true, nullable = false)
+    @Column(name = "prod_codigo_barras", nullable = false)
     private String codigoBarras;
 
     @Column(name = "prod_nombre", nullable = false)
@@ -42,6 +42,8 @@ public class Producto {
     @Column(name = "prod_activo")
     private boolean activo;
 
+    @Column(name = "prod_id_negocio")
+    private Integer idNegocio;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "cate_id")

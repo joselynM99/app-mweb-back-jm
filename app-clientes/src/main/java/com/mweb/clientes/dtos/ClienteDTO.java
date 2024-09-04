@@ -21,6 +21,7 @@ public class ClienteDTO {
     private String correo;
     private String direccion;
     private boolean activo;
+    private Integer idNegocio;
 
     public static Cliente from(ClienteDTO obj) {
         Cliente cliente = new Cliente();
@@ -33,6 +34,7 @@ public class ClienteDTO {
         cliente.setCorreo(obj.getCorreo());
         cliente.setDireccion(obj.getDireccion());
         cliente.setActivo(obj.isActivo());
+        cliente.setIdNegocio(obj.getIdNegocio());
         return cliente;
     }
 
@@ -47,6 +49,7 @@ public class ClienteDTO {
         cliente.setCorreo(obj.getCorreo());
         cliente.setDireccion(obj.getDireccion());
         cliente.setActivo(obj.isActivo());
+        cliente.setIdNegocio(obj.getIdNegocio());
 
         return cliente;
     }

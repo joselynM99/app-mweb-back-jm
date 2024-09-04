@@ -23,6 +23,7 @@ public class ProductoListaDTO {
 	private BigDecimal precioVenta;
 	private Double stockActual;
 	private boolean activo;
+	private Integer idNegocio;
 	private Integer cantidadRelacionada;
 
 
@@ -38,6 +39,7 @@ public class ProductoListaDTO {
 		ret.setPrecioVenta(obj.getPrecioVenta());
 		ret.setStockActual(obj.getStockActual());
 		ret.setActivo(obj.isActivo());
+		ret.setIdNegocio(obj.getIdNegocio());
 
 		return ret;
 	}
@@ -55,6 +57,7 @@ public class ProductoListaDTO {
 		ret.setPrecioVenta(obj.getPrecioVenta());
 		ret.setStockActual(obj.getStockActual());
 		ret.setActivo(obj.isActivo());
+		ret.setIdNegocio(obj.getIdNegocio());
 
 
 		return ret;
@@ -74,6 +77,7 @@ public class ProductoListaDTO {
 		ret.setPrecioVenta(obj.getPrecioVenta());
 		ret.setStockActual(obj.getStockActual());
 		ret.setActivo(obj.isActivo());
+		ret.setIdNegocio(obj.getIdNegocio());
 
 
 		return ret;

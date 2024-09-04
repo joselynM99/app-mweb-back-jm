@@ -13,28 +13,16 @@ import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 @Consumes(MediaType.APPLICATION_JSON)
 @RegisterRestClient(configKey = "InventarioRestClient")
 public interface InventarioRestClient {
-    @GET
-    @Path("/productos")
-    Response listaProductos();
 
-    @GET
-    @Path("/subproductos")
-    Response listaSubproductos();
-    @GET
-    @Path("/subproductos/buscar-por-nombre/{nombre}")
-    Response listaSubproductosPorNombre(@PathParam("nombre") String nombre);
 
-    @GET
-    @Path("/productos/buscar-por-nombre/{nombre}")
-    Response listaProductosPorNombre(@PathParam("nombre") String nombre);
 
     @GET
     @Path("/subproductos/{codigoBarras}")
-    Response obtenerSubproductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras);
+    Response obtenerSubproductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras, @QueryParam("idNegocio") Integer idNegocio);
 
     @GET
     @Path("/productos/{codigoBarras}")
-    Response obtenerProductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras);
+    Response obtenerProductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras, @QueryParam("idNegocio") Integer idNegocio);
 
     @PUT
     @Path("/productos/{codigoBarras}")
@@ -46,6 +34,5 @@ public interface InventarioRestClient {
 
     @GET
     @Path("/subproductos/buscar-por-producto/{codigo}")
-    Response listaSubproductosPorProducto(@PathParam("codigo") String codigo);
-
+    Response listaSubproductosPorProducto(@PathParam("codigo") String codigo, @QueryParam("idNegocio") Integer idNegocio);
 }

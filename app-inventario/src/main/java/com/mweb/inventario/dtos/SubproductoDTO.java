@@ -26,6 +26,7 @@ public class SubproductoDTO {
 	private Integer marca;
 	private Integer cantidadRelacionada;
 	private String producto;
+	private Integer idNegocio;
 
 	public static Subproducto from(SubproductoDTO obj){
 		Subproducto ret = new Subproducto();
@@ -39,6 +40,7 @@ public class SubproductoDTO {
 		ret.setStockActual(obj.getStockActual());
 		ret.setActivo(obj.isActivo());
 		ret.setCantidadRelacionada(obj.getCantidadRelacionada());
+		ret.setIdNegocio(obj.getIdNegocio());
 
 		return ret;
 	}
@@ -60,7 +62,7 @@ public class SubproductoDTO {
 		ret.setMarca(obj.getProducto().getMarca().getId());
 		ret.setImpuesto(obj.getImpuesto().getId());
 		ret.setProducto(obj.getProducto().getCodigoBarras());
-
+		ret.setIdNegocio(obj.getIdNegocio());
 		return ret;
 	}
 

@@ -25,6 +25,9 @@ public class Abono {
 	@SequenceGenerator(name = "seq_abono", sequenceName = "seq_abono", allocationSize = 1)
 	@Column(name = "abon_id")
 	private Integer id;
+
+	@Column(name = "abon_id_cuadre_caja")
+	private Integer idCuadreCaja;
 	
 	@Column(name = "abon_monto")
 	private BigDecimal monto;

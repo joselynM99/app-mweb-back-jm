@@ -16,5 +16,7 @@ public class VentaRequestDTO {
 	private String username;
 	private boolean pagoTransferencia;
 	private BigDecimal total;
+	private Integer idCuadreCaja;
+	private Integer idNegocio;
 
 }

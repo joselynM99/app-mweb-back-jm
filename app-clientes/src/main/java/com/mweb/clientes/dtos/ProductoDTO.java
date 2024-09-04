@@ -20,4 +20,5 @@ public class ProductoDTO {
     private Integer impuesto;
     private Integer categoria;
     private Integer marca;
+    private Integer idNegocio;
 }

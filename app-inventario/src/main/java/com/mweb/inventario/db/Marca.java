@@ -16,11 +16,14 @@ public class Marca {
     @Column(name = "marc_id")
     private Integer id;
 
-    @Column(name = "marc_nombre", unique = true, nullable = false)
+    @Column(name = "marc_nombre", nullable = false)
     private String nombre;
 
     @Column(name = "marc_activo")
     private boolean activo;
+
+    @Column(name = "marc_id_negocio")
+    private Integer idNegocio;
 
     @OneToMany(mappedBy = "marca", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<Producto> productos;

@@ -21,7 +21,7 @@ public class Proveedor {
     @Column(name = "prov_tipo_id")
     private TipoIdentificacion tipoIdentificacion;
 
-    @Column(name = "prov_identificacion", unique = true, nullable = false)
+    @Column(name = "prov_identificacion", nullable = false)
     private String identificacion;
 
     @Column(name = "prov_razon_social")
@@ -41,6 +41,9 @@ public class Proveedor {
 
     @Column(name = "prov_activo")
     private boolean activo;
+
+    @Column(name = "prov_id_negocio")
+    private Integer idNegocio;
 
     @OneToMany(mappedBy = "proveedor", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
     private List<Producto> productos;

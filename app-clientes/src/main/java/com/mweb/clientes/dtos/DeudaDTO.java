@@ -20,18 +20,22 @@ public class DeudaDTO {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime fecha;
     private Boolean estado;
+    private Integer numeroReferencia;
 
     private String clienteId;
     private String clienteNombre;
     private List<DetalleDeudaDTO> detalles;
     private List<AbonoDTO> abonos;
 
+    private Integer idNegocio;
     public static Deuda from(DeudaDTO obj) {
         Deuda deuda = new Deuda();
         deuda.setId(obj.getId());
         deuda.setTotal(obj.getTotal());
         deuda.setFecha(obj.getFecha());
         deuda.setEstado(obj.getEstado());
+        deuda.setNumeroReferencia(obj.getNumeroReferencia());
+
         return deuda;
     }
 
@@ -43,6 +47,8 @@ public class DeudaDTO {
         deuda.setEstado(obj.getEstado());
         deuda.setClienteNombre(obj.getCliente().getNombres() + ' ' + obj.getCliente().getApellidos());
         deuda.setClienteId(obj.getCliente().getIdentificacion());
+        deuda.setNumeroReferencia(obj.getNumeroReferencia());
+
         return deuda;
     }
 

@@ -22,4 +22,5 @@ public class SubproductoDTO {
     private Integer marca;
     private Integer cantidadRelacionada;
     private String producto;
+    private Integer idNegocio;
 }

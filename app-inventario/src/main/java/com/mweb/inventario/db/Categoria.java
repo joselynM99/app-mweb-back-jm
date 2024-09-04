@@ -25,6 +25,9 @@ public class Categoria {
 
 	@Column(name = "cate_activo")
 	private boolean activo;
+
+	@Column(name = "cate_id_negocio")
+	private Integer idNegocio;
 	
 	@OneToMany(mappedBy = "categoria", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})
 	private List<Producto> productos;

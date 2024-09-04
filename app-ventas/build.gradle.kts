@@ -26,20 +26,20 @@ dependencies {
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson") //JAX-RS-Json: Jackson
     implementation("io.quarkus:quarkus-hibernate-orm-panache") //JPA: Hibernate
     implementation("io.quarkus:quarkus-jdbc-postgresql") //Driver JDBC: PostgreSQL
-
     implementation("io.quarkus:quarkus-smallrye-jwt") // MicroProfile JWT
-
     implementation("io.smallrye:smallrye-jwt-build") // SmallRye JWT Build
 
-//--rest client
+    // REST client reactive
     implementation("io.quarkus:quarkus-rest-client-reactive")
     implementation("io.quarkus:quarkus-rest-client-reactive-jackson")
 
-//// https://mvnrepository.com/artifact/io.quarkus/quarkus-oidc
-//    implementation("io.quarkus:quarkus-oidc")
-//
-//    implementation("io.quarkus:quarkus-keycloak-authorization")
+    // OIDC and Keycloak
+    implementation("io.quarkus:quarkus-oidc")
+    implementation("io.quarkus:quarkus-oidc-client")
+    implementation("io.quarkus:quarkus-keycloak-authorization")
 
+    // Keycloak Admin Client
+//    implementation("org.keycloak:keycloak-admin-client") // Reemplaza 21.0.1 con la última versión compatible
 }
 
 tasks.test {

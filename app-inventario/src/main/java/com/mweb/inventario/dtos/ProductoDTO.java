@@ -23,6 +23,7 @@ public class ProductoDTO  {
 	private Integer impuesto;
 	private Integer categoria;
 	private Integer marca;
+	private Integer idNegocio;
 
 	public static Producto from(ProductoDTO obj){
 		Producto ret = new Producto();
@@ -35,6 +36,7 @@ public class ProductoDTO  {
 		ret.setPrecioVenta(obj.getPrecioVenta());
 		ret.setStockActual(obj.getStockActual());
 		ret.setActivo(obj.isActivo());
+		ret.setIdNegocio(obj.getIdNegocio());
 
 		return ret;
 	}
@@ -55,6 +57,7 @@ public class ProductoDTO  {
 		ret.setMarca(obj.getMarca().getId());
 		ret.setImpuesto(obj.getImpuesto().getId());
 		ret.setProveedor(obj.getProveedor().getIdentificacion());
+		ret.setIdNegocio(obj.getIdNegocio());
 
 		return ret;
 	}

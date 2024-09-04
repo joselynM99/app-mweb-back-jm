@@ -47,5 +47,18 @@ public class Venta {
 	@Column(name = "clie_activo")
 	private Boolean activo;
 
+	@Column(name = "vent_numero_referencia")
+	private Integer numeroReferencia;
+
+	@Column(name = "vent_id_cuadre_caja")
+	private Integer idCuadreCaja;
+
+	@Column(name = "vent_id_negocio")
+	private Integer idNegocio;
+
+	@Column(name = "vent_username")
+	private String username;
+
+
 
 }

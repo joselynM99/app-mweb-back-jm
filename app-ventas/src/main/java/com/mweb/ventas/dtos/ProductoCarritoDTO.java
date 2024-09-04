@@ -16,6 +16,7 @@ public class ProductoCarritoDTO {
 	private BigDecimal subtotal;
 	private BigDecimal costoPromedio;
 	private  BigDecimal precioSinImpuestos;
+	private Integer idNegocio;
 
 	public static ProductoCarritoDTO from(ProductoDTO productoDTO) {
 		ProductoCarritoDTO productoCarritoDTO = new ProductoCarritoDTO();
@@ -25,6 +26,7 @@ public class ProductoCarritoDTO {
 		productoCarritoDTO.setCantidad(1.00);
 		productoCarritoDTO.setPrecioSinImpuestos(productoDTO.getPrecioSinImpuestos());
 		productoCarritoDTO.setCostoPromedio(productoDTO.getCostoPromedio());
+		productoCarritoDTO.setIdNegocio(productoDTO.getIdNegocio());
 		return productoCarritoDTO;
 	}
 
@@ -36,6 +38,7 @@ public class ProductoCarritoDTO {
 		productoCarritoDTO.setCantidad(1.00);
 		productoCarritoDTO.setPrecioSinImpuestos(subproductoDTO.getPrecioSinImpuestos());
 		productoCarritoDTO.setCostoPromedio(subproductoDTO.getCostoPromedio());
+		productoCarritoDTO.setIdNegocio(subproductoDTO.getIdNegocio());
 		return productoCarritoDTO;
 	}
 

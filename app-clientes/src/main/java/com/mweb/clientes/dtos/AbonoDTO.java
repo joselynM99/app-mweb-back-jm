@@ -17,6 +17,8 @@ public class AbonoDTO {
 
     private Integer id;
     private BigDecimal monto;
+    private Integer idDeuda;
+    private Integer idCuadreCaja;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime fecha;
@@ -26,6 +28,8 @@ public class AbonoDTO {
         ab.setFecha(obj.getFecha());
         ab.setId(obj.getId());
         ab.setMonto(obj.getMonto());
+        ab.setIdDeuda(obj.getDeuda().getId());
+        ab.setIdCuadreCaja(obj.getIdCuadreCaja());
 
         return ab;
     }

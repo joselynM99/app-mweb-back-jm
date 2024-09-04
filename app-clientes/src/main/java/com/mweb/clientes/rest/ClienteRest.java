@@ -5,6 +5,8 @@ import com.mweb.clientes.db.enums.TipoIdentificacion;
 import com.mweb.clientes.dtos.ClienteDTO;
 import com.mweb.clientes.repo.ClienteRepository;
 import io.quarkus.panache.common.Parameters;
+import jakarta.annotation.security.PermitAll;
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
@@ -26,9 +28,10 @@ public class ClienteRest {
     ClienteRepository clienteRepository;
 
     @GET
-    public Response listaClientes() {
+    @PermitAll
+    public Response listaClientes(@QueryParam("idNegocio") Integer idNegocio) {
         try {
-            List<Cliente> clientesActivos = this.clienteRepository.find("activo = ?1", true).list();
+            List<Cliente> clientesActivos = this.clienteRepository.find("activo = ?1 AND idNegocio = ?2", true, idNegocio).list();
 
             if (clientesActivos.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron clientes").build();
@@ -43,15 +46,15 @@ public class ClienteRest {
                     .entity("Ha ocurrido un error al obtener los clientes")
                     .build();
         }
-
     }
 
     @GET
     @Path("/buscar-por-nombre/{nombre}")
-    public Response listaClientesPorNombre(@PathParam("nombre") String nombre) {
+    @PermitAll
+    public Response listaClientesPorNombre(@PathParam("nombre") String nombre, @QueryParam("idNegocio") Integer idNegocio) {
         try {
-            String consulta = "FROM Cliente c WHERE (LOWER(c.nombres) LIKE CONCAT('%', :nombre, '%') OR LOWER(c.apellidos) LIKE CONCAT('%', :nombre, '%')) AND c.activo = true";
-            List<Cliente> clientes = clienteRepository.find(consulta, Parameters.with("nombre", nombre.toLowerCase())).list();
+            String consulta = "FROM Cliente c WHERE (LOWER(c.nombres) LIKE CONCAT('%', :nombre, '%') OR LOWER(c.apellidos) LIKE CONCAT('%', :nombre, '%')) AND c.activo = true AND c.idNegocio = :idNegocio";
+            List<Cliente> clientes = clienteRepository.list(consulta, Parameters.with("nombre", nombre.toLowerCase()).and("idNegocio", idNegocio).map());
 
             if (clientes.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND)
@@ -68,11 +71,13 @@ public class ClienteRest {
                     .build();
         }
     }
+
     @GET
     @Path("/{identificacion}")
-    public Response obtenerClientePorIdentificacion(@PathParam("identificacion") String identificacion) {
+    @PermitAll
+    public Response obtenerClientePorIdentificacion(@PathParam("identificacion") String identificacion, @QueryParam("idNegocio") Integer idNegocio) {
         try {
-            Optional<Cliente> clienteOpt = this.clienteRepository.find("identificacion = ?1 AND activo =?2", identificacion, true).singleResultOptional();
+            Optional<Cliente> clienteOpt = this.clienteRepository.find("identificacion = ?1 AND activo =?2 AND idNegocio = ?3", identificacion, true, idNegocio).singleResultOptional();
             if (clienteOpt.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("Cliente no encontrado").build();
             }
@@ -90,6 +95,7 @@ public class ClienteRest {
 
     @PATCH
     @Path("/{id}")
+    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
     public Response desactivarCliente(@PathParam("id") Integer id) {
         try {
             Optional<Cliente> clienteOptional = this.clienteRepository.findByIdOptional(id);
@@ -112,12 +118,12 @@ public class ClienteRest {
     }
 
     @POST
+    @PermitAll
     public Response registrarCliente(ClienteDTO obj) {
         try {
+            Optional<Cliente> cliente = this.clienteRepository.find("identificacion = ?1 AND activo = true AND idNegocio = ?2", obj.getIdentificacion(), obj.getIdNegocio()).singleResultOptional();
 
-            Optional<Cliente> producto = this.clienteRepository.find("identificacion", obj.getIdentificacion()).singleResultOptional();
-
-            if (producto.isPresent()) {
+            if (cliente.isPresent()) {
                 return Response.status(Response.Status.CONFLICT)
                         .entity("Ya existe un cliente con el mismo número de identificación")
                         .build();
@@ -137,9 +143,10 @@ public class ClienteRest {
 
     @PUT
     @Path("/{identificacion}")
+    @PermitAll
     public Response actualizarCliente(@PathParam("identificacion") String identificacion, ClienteDTO obj) {
         try {
-            Optional<Cliente> clienteOptional = this.clienteRepository.find("identificacion = ?1 AND activo =?2", identificacion, true).singleResultOptional();
+            Optional<Cliente> clienteOptional = this.clienteRepository.find("identificacion = ?1 AND activo =?2 AND idNegocio = ?3", identificacion, true, obj.getIdNegocio()).singleResultOptional();
             if (clienteOptional.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("Cliente no encontrado").build();
             }
@@ -153,6 +160,7 @@ public class ClienteRest {
             ret.setTipoId(TipoIdentificacion.valueOf(obj.getTipoId()));
             ret.setIdentificacion(obj.getIdentificacion());
             ret.setActivo(obj.isActivo());
+            ret.setIdNegocio(obj.getIdNegocio());
 
             return Response.ok("Cliente actualizado exitosamente").build();
 

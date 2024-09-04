@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: app-inventario
 spec:
-  replicas: 4
+  replicas: 2
   selector:
     matchLabels:
       app: app-inventario
@@ -31,7 +31,7 @@ spec:
             - name: QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION
               value: "update"
             - name: QUARKUS_LOG_CATEGORY_ORG_HIBERNATE_LEVEL
-              value: "DEBUG"
+              value: "INFO"
             - name: QUARKUS_OIDC_AUTH_SERVER_URL
               value: "http://keycloak.keycloak:8080/realms/mweb"
             - name: QUARKUS_OIDC_CLIENT_ID

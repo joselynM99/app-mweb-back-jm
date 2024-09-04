@@ -21,6 +21,7 @@ public class ProveedorDTO {
     private String correo;
     private String direccion;
     private boolean activo;
+    private Integer idNegocio;
 
     public static Proveedor from(ProveedorDTO obj) {
         Proveedor proveedor = new Proveedor();
@@ -33,6 +34,7 @@ public class ProveedorDTO {
         proveedor.setCorreo(obj.getCorreo());
         proveedor.setDireccion(obj.getDireccion());
         proveedor.setActivo(obj.isActivo());
+        proveedor.setIdNegocio(obj.getIdNegocio());
         return proveedor;
     }
 
@@ -47,6 +49,7 @@ public class ProveedorDTO {
         proveedor.setCorreo(obj.getCorreo());
         proveedor.setDireccion(obj.getDireccion());
         proveedor.setActivo(obj.isActivo());
+        proveedor.setIdNegocio(obj.getIdNegocio());
 
         return proveedor;
     }
