@@ -5,6 +5,7 @@ import com.mweb.inventario.dtos.ProductoDTO;
 import com.mweb.inventario.dtos.ProductoListaDTO;
 import com.mweb.inventario.repo.*;
 import io.quarkus.panache.common.Parameters;
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -127,7 +128,7 @@ public class ProductoRest {
 
     @GET
     @Path("/{codigoBarras}")
-    @PermitAll
+    @Authenticated
     public Response obtenerProductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras, @QueryParam("idNegocio") Integer idNegocio) {
         try {
             Optional<Producto> productoOpt = this.productoRepository.find("codigoBarras = ?1 AND activo = ?2 AND idNegocio = ?3", codigoBarras, true, idNegocio).singleResultOptional();
@@ -171,7 +172,7 @@ public class ProductoRest {
     }
 
     @GET
-    @PermitAll
+    @Authenticated
     public Response listaProductos(@QueryParam("idNegocio") Integer idNegocio) {
         try {
             List<Producto> productosActivos = this.productoRepository.find("activo = ?1 AND idNegocio = ?2", true, idNegocio).list();

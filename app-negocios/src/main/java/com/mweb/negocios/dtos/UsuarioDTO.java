@@ -21,7 +21,7 @@ public class UsuarioDTO {
     private String identificacion;
     private String telefono;
     private String password;
-    private Integer rolId;
+    private String rol;
     private Integer negocioId; // New attribute
 
     public static Usuario from(UsuarioDTO obj) {
@@ -54,7 +54,7 @@ public class UsuarioDTO {
         usuarioDTO.setTelefono(obj.getTelefono());
         // Password should be handled securely and not directly set here
         if (obj.getRol() != null) {
-            usuarioDTO.setRolId(obj.getRol().getId());
+            usuarioDTO.setRol(obj.getRol().getNombre());
         }
         if (obj.getNegocio() != null) {
             usuarioDTO.setNegocioId(obj.getNegocio().getId());

@@ -11,6 +11,7 @@ import com.mweb.inventario.repo.ImpuestoRepository;
 import com.mweb.inventario.repo.ProductoRepository;
 import com.mweb.inventario.repo.SubproductoRepository;
 import io.quarkus.panache.common.Parameters;
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -122,7 +123,7 @@ public class SubproductoRest {
 
     @GET
     @Path("/{codigoBarras}")
-    @PermitAll
+    @Authenticated
     public Response obtenerSubproductoCodigoBarras(@PathParam("codigoBarras") String codigoBarras, @QueryParam("idNegocio") Integer idNegocio) {
         try {
             Optional<Subproducto> subproductoOpt = this.subproductoRepository.find("codigoBarras = ?1 AND activo =?2 AND idNegocio = ?3", codigoBarras, true, idNegocio).singleResultOptional();
@@ -141,7 +142,7 @@ public class SubproductoRest {
     }
 
     @GET
-    @PermitAll
+    @Authenticated
     public Response listaSubproductos(@QueryParam("idNegocio") Integer idNegocio) {
         try {
             List<Subproducto> subproductosActivos = this.subproductoRepository.find("activo = ?1 AND idNegocio = ?2", true, idNegocio).list();
@@ -163,7 +164,7 @@ public class SubproductoRest {
 
     @GET
     @Path("/buscar-por-nombre/{nombre}")
-    @PermitAll
+    @Authenticated
     public Response listaSubproductosPorNombre(@PathParam("nombre") String nombre, @QueryParam("idNegocio") Integer idNegocio) {
         try {
             String consulta = "LOWER(nombre) LIKE CONCAT('%', :nombre, '%') AND activo = true AND idNegocio = :idNegocio";
@@ -188,7 +189,7 @@ public class SubproductoRest {
 
     @GET
     @Path("/buscar-por-producto/{codigo}")
-    @PermitAll
+    @Authenticated
     public Response listaSubproductosPorProducto(@PathParam("codigo") String codigo, @QueryParam("idNegocio") Integer idNegocio) {
         try {
             Optional<Producto> productoOpt = this.productoRepository.find("codigoBarras = ?1 AND idNegocio = ?2 AND activo = true", codigo, idNegocio).singleResultOptional();

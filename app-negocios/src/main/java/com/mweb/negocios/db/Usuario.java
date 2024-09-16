@@ -18,7 +18,7 @@ public class Usuario {
     @Column(name = "usua_keycloak_id", unique = true, nullable = false)
     private String keycloakId;
 
-    @Column(name = "usua_nombre_usuario", unique = true, nullable = false)
+    @Column(name = "usua_nombre_usuario", unique = true)
     private String nombreUsuario;
 
     @Column(name = "usua_correo", unique = true, nullable = false)
@@ -37,7 +37,7 @@ public class Usuario {
     @Column(name = "usua_tipo_identificacion", nullable = false)
     private TipoIdentificacion tipoIdentificacion;
 
-    @Column(name = "usua_identificacion", unique = true, nullable = false)
+    @Column(name = "usua_identificacion", nullable = false)
     private String identificacion;
 
     @Column(name = "usua_telefono", nullable = false)

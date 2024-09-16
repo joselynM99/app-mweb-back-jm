@@ -4,6 +4,7 @@ import com.mweb.gestion.cajas.dtos.AdicionalesDTO;
 import com.mweb.gestion.cajas.dtos.CajaDTO;
 import com.mweb.gestion.cajas.dtos.CuadreCajaDTO;
 import com.mweb.gestion.cajas.service.CuadreCajaService;
+import io.quarkus.security.Authenticated;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.inject.Inject;
@@ -37,7 +38,7 @@ public class CuadreCajaRest {
 
     @GET
     @Path("/cajas-activas/{idNegocio}")
-    @PermitAll
+    @Authenticated
     public Response obtenerCajasActivasPorNegocio(@PathParam("idNegocio") Integer idNegocio) {
         try {
             List<CajaDTO> cajas = cuadreCajaService.obtenerCajasActivasPorNegocio(idNegocio);
@@ -76,7 +77,7 @@ public class CuadreCajaRest {
 
     @POST
     @Path("/adicional")
-    @PermitAll
+    @Authenticated
     public Response registrarAdicional(AdicionalesDTO adicionalesDTO) {
         try {
             AdicionalesDTO createdAdicional = cuadreCajaService.registrarAdicional(adicionalesDTO);
@@ -89,7 +90,7 @@ public class CuadreCajaRest {
 
     @GET
     @Path("/adicionales-activos/{idCuadreCaja}")
-    @PermitAll
+    @Authenticated
     public Response obtenerAdicionalesActivosPorCuadreCaja(@PathParam("idCuadreCaja") Integer idCuadreCaja) {
         try {
             List<AdicionalesDTO> adicionales = cuadreCajaService.obtenerAdicionalesActivosPorCuadreCaja(idCuadreCaja);
@@ -102,7 +103,7 @@ public class CuadreCajaRest {
 
     @PATCH
     @Path("/adicional/desactivar/{idAdicional}")
-    @PermitAll
+    @Authenticated
     public Response desactivarAdicional(@PathParam("idAdicional") Integer idAdicional) {
         try {
             cuadreCajaService.desactivarAdicional(idAdicional);
@@ -115,7 +116,7 @@ public class CuadreCajaRest {
 
     @POST
     @Path("/abrir")
-    @PermitAll
+    @Authenticated
     public Response abrirCaja(CuadreCajaDTO cuadreCajaDTO) {
         try {
             CuadreCajaDTO createdCuadreCaja = cuadreCajaService.abrirCaja(cuadreCajaDTO);
@@ -147,7 +148,7 @@ public class CuadreCajaRest {
 
     @PUT
     @Path("/cerrar")
-    @PermitAll
+    @Authenticated
     public Response cerrarCaja(CuadreCajaDTO cuadreCajaDTO) {
         try {
             CuadreCajaDTO closedCuadreCaja = cuadreCajaService.cerrarCaja(cuadreCajaDTO);
@@ -160,7 +161,7 @@ public class CuadreCajaRest {
 
     @GET
     @Path("/activo-usuario")
-    @PermitAll
+    @Authenticated
     public Response buscarCuadreCajaActivoPorUsuario(@QueryParam("usuario") String usuario,
                                                      @QueryParam("idNegocio") Integer idNegocio) {
         try {

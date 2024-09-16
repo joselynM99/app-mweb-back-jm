@@ -9,11 +9,11 @@
         <option name="modules">
           <set>
             <option value="$PROJECT_DIR$" />
-            <option value="$PROJECT_DIR$/app-clientes" />
             <option value="$PROJECT_DIR$/app-compras" />
             <option value="$PROJECT_DIR$/app-gestion-cajas" />
             <option value="$PROJECT_DIR$/app-inventario" />
             <option value="$PROJECT_DIR$/app-negocios" />
+            <option value="$PROJECT_DIR$/app-transacciones" />
             <option value="$PROJECT_DIR$/app-ventas" />
           </set>
         </option>

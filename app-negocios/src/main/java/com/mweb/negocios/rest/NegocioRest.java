@@ -12,6 +12,8 @@ import com.mweb.negocios.repo.UsuarioRepository;
 import com.mweb.negocios.service.KeycloakService;
 import io.quarkus.oidc.AccessTokenCredential;
 import io.quarkus.panache.common.Parameters;
+import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -50,7 +52,7 @@ public class NegocioRest {
     // NegocioRest.java
     @GET
     @Path("/roles")
-    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Authenticated
     public Response listarRoles() {
         try {
             List<Rol> roles = rolRepository.listAll();
@@ -78,18 +80,15 @@ public class NegocioRest {
                 return Response.status(Response.Status.NOT_FOUND).entity("Negocio no encontrado").build();
             }
 
-            // Check if the role exists
-            Optional<Rol> rolOpt = rolRepository.findByIdOptional(usuarioDTO.getRolId());
+            Optional<Rol> rolOpt = rolRepository.find("nombre", usuarioDTO.getRol()).firstResultOptional();
             if (rolOpt.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("Rol no encontrado").build();
             }
 
-            // Create user in Keycloak
             String token = accessTokenCredential.getToken();
-            String keycloakUserId = keycloakService.createUser(token, usuarioDTO.getNombreUsuario(), usuarioDTO.getNombre(), usuarioDTO.getApellido(), usuarioDTO.getCorreo(), usuarioDTO.getPassword());
-            keycloakService.assignRole(token, keycloakUserId, rolOpt.get().getNombre());
+            String keycloakUserId = keycloakService.createUser(usuarioDTO.getNombreUsuario(), usuarioDTO.getNombre(), usuarioDTO.getApellido(), usuarioDTO.getCorreo(), usuarioDTO.getPassword());
+            keycloakService.assignRole(keycloakUserId, rolOpt.get().getNombre());
 
-            // Save user in the database
             Usuario usuario = UsuarioDTO.from(usuarioDTO);
             usuario.setKeycloakId(keycloakUserId);
             usuario.setNegocio(negocioOpt.get());
@@ -107,9 +106,9 @@ public class NegocioRest {
     }
 
     @PUT
-    @Path("/usuarios/{id}")
+    @Path("/usuarios/{keycloakId}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
-    public Response actualizarUsuario(@PathParam("id") String userId, UsuarioDTO usuarioDTO) {
+    public Response actualizarUsuario(@PathParam("keycloakId") String userId, UsuarioDTO usuarioDTO) {
         try {
             // Check if the user exists in the local database by Keycloak ID
             Optional<Usuario> usuarioOpt = usuarioRepository.find("keycloakId", userId).firstResultOptional();
@@ -117,18 +116,15 @@ public class NegocioRest {
                 return Response.status(Response.Status.NOT_FOUND).entity("Usuario no encontrado").build();
             }
 
-            // Check if the role exists
-            Optional<Rol> rolOpt = rolRepository.findByIdOptional(usuarioDTO.getRolId());
+            Optional<Rol> rolOpt = rolRepository.find("nombre", usuarioDTO.getRol()).firstResultOptional();
             if (rolOpt.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("Rol no encontrado").build();
             }
 
-            // Update user in Keycloak
-            String token = accessTokenCredential.getToken();
-            keycloakService.updateUser(token, userId, usuarioDTO.getNombreUsuario(), usuarioDTO.getNombre(), usuarioDTO.getApellido(), usuarioDTO.getCorreo(), usuarioDTO.getPassword(), usuarioDTO.isActivo());
-            keycloakService.assignRole(token, userId, rolOpt.get().getNombre());
 
-            // Update user in the local database
+            keycloakService.updateUser(userId, usuarioDTO.getNombreUsuario(), usuarioDTO.getNombre(), usuarioDTO.getApellido(), usuarioDTO.getCorreo(), usuarioDTO.getPassword(), usuarioDTO.isActivo());
+            keycloakService.assignRole(userId, rolOpt.get().getNombre());
+
             Usuario usuario = usuarioOpt.get();
             usuario.setNombreUsuario(usuarioDTO.getNombreUsuario());
             usuario.setCorreo(usuarioDTO.getCorreo());
@@ -136,6 +132,7 @@ public class NegocioRest {
             usuario.setApellido(usuarioDTO.getApellido());
             usuario.setActivo(usuarioDTO.isActivo());
             usuario.setTelefono(usuarioDTO.getTelefono());
+            usuario.setIdentificacion(usuarioDTO.getIdentificacion());
             usuario.setRol(rolOpt.get());
             usuarioRepository.persist(usuario);
 
@@ -149,7 +146,7 @@ public class NegocioRest {
     }
 
     @GET
-    @Path("/negocios/{negocioId}/usuarios")
+    @Path("/{negocioId}/usuarios")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
     public Response listarUsuariosPorNegocio(@PathParam("negocioId") Integer negocioId) {
         try {
@@ -158,7 +155,7 @@ public class NegocioRest {
                 return Response.status(Response.Status.NOT_FOUND).entity("Negocio no encontrado").build();
             }
 
-            List<Usuario> usuarios = usuarioRepository.find("negocio.id = ?1", negocioId).list();
+            List<Usuario> usuarios = usuarioRepository.find("negocio.id = ?1 and activo = true", negocioId).list();
             if (usuarios.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron usuarios activos para el negocio especificado").build();
             }
@@ -176,7 +173,7 @@ public class NegocioRest {
 
     @GET
     @Path("/usuarios/buscar")
-    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Authenticated
     public Response buscarUsuarioPorNombreUsuario(@QueryParam("username") String username) {
         try {
             Optional<Usuario> usuarioOpt = usuarioRepository.find("nombreUsuario = ?1 and activo = true", username).firstResultOptional();
@@ -249,7 +246,7 @@ public class NegocioRest {
 
     @GET
     @Path("/{id}")
-    @RolesAllowed("ADMINISTRADOR")
+    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
     public Response obtenerNegocioPorId(@PathParam("id") Integer id) {
         try {
             Optional<Negocio> negocioOpt = negocioRepository.findByIdOptional(id);
@@ -352,5 +349,27 @@ public class NegocioRest {
         }
     }
 
+    @DELETE
+    @Path("/usuarios/{id}")
+    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    public Response eliminarUsuario(@PathParam("id") String userId) {
+        try {
+            Optional<Usuario> usuarioOpt = usuarioRepository.find("keycloakId", userId).firstResultOptional();
+            if (usuarioOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND).entity("Usuario no encontrado").build();
+            }
+
+            keycloakService.deleteUser(userId);
+            Usuario usuario = usuarioOpt.get();
+            usuario.setActivo(false);
+            usuario.setKeycloakId(null);
+            return Response.ok("Usuario eliminado exitosamente").build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Ha ocurrido un error al eliminar el usuario")
+                    .build();
+        }
+    }
 
 }

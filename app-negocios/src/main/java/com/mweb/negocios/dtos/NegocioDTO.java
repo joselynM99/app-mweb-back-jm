@@ -14,7 +14,6 @@ public class NegocioDTO {
     private String telefono;
     private String razonSocial;
     private boolean activo;
-    // NegocioDTO.java
     private String ruc;
 
     public static Negocio from(NegocioDTO obj) {
