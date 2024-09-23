@@ -31,19 +31,19 @@ public class Deuda {
     private Integer id;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @Column(name = "deud_fecha")
+    @Column(name = "deud_fecha", nullable = false)
     private LocalDateTime fecha;
 
-    @Column(name = "deud_total")
+    @Column(name = "deud_total", nullable = false)
     private BigDecimal total;
 
-    @Column(name = "deud_estado")
+    @Column(name = "deud_estado", nullable = false)
     private Boolean estado;
 
-    @Column(name = "deud_numero_referencia")
+    @Column(name = "deud_numero_referencia", nullable = false)
     private Integer numeroReferencia;
 
-    @Column(name = "deud_id_negocio")
+    @Column(name = "deud_id_negocio",nullable = false)
     private Integer idNegocio;
 
     @OneToMany(mappedBy = "deuda", cascade = CascadeType.ALL)

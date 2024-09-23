@@ -19,10 +19,10 @@ public class Marca {
     @Column(name = "marc_nombre", nullable = false)
     private String nombre;
 
-    @Column(name = "marc_activo")
+    @Column(name = "marc_activo", nullable = false)
     private boolean activo;
 
-    @Column(name = "marc_id_negocio")
+    @Column(name = "marc_id_negocio", nullable = false)
     private Integer idNegocio;
 
     @OneToMany(mappedBy = "marca", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})

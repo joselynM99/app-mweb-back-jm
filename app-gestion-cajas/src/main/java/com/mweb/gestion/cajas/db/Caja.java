@@ -18,6 +18,9 @@ public class Caja {
     @Column(name = "caja_nombre", nullable = false)
     private String nombre;
 
+    @Column(name = "caja_id_negocio", nullable = false)
+    private Integer idNegocio;
+
     @OneToMany(mappedBy = "caja", cascade = CascadeType.ALL)
     private List<CuadreCaja> cuadreCajas;
 

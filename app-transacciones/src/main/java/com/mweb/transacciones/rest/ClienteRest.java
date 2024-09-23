@@ -22,7 +22,6 @@ import java.util.Optional;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-@Transactional
 public class ClienteRest {
 
     @Inject
@@ -97,6 +96,7 @@ public class ClienteRest {
     @PATCH
     @Path("/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response desactivarCliente(@PathParam("id") Integer id) {
         try {
             Optional<Cliente> clienteOptional = this.clienteRepository.findByIdOptional(id);
@@ -120,6 +120,7 @@ public class ClienteRest {
 
     @POST
     @Authenticated
+    @Transactional
     public Response registrarCliente(ClienteDTO obj) {
         try {
             Optional<Cliente> cliente = this.clienteRepository.find("identificacion = ?1 AND activo = true AND idNegocio = ?2", obj.getIdentificacion(), obj.getIdNegocio()).singleResultOptional();
@@ -145,6 +146,7 @@ public class ClienteRest {
     @PUT
     @Path("/{identificacion}")
     @Authenticated
+    @Transactional
     public Response actualizarCliente(@PathParam("identificacion") String identificacion, ClienteDTO obj) {
         try {
             Optional<Cliente> clienteOptional = this.clienteRepository.find("identificacion = ?1 AND activo =?2 AND idNegocio = ?3", identificacion, true, obj.getIdNegocio()).singleResultOptional();

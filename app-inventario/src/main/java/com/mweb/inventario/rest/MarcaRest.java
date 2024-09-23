@@ -20,7 +20,6 @@ import java.util.Optional;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-@Transactional
 public class MarcaRest {
 
     @Inject
@@ -28,6 +27,7 @@ public class MarcaRest {
 
     @POST
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response registrarMarca(MarcaDTO obj) {
         try {
             Optional<Marca> marca = marcaRepository.find("nombre = ?1 AND activo = true AND idNegocio = ?2", obj.getNombre(), obj.getIdNegocio()).firstResultOptional();
@@ -55,6 +55,7 @@ public class MarcaRest {
     @PUT
     @Path("/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response actualizarMarca(@PathParam("id") Integer id, MarcaDTO obj) {
         try {
             Optional<Marca> marcaOpt = marcaRepository.find("id = ?1 AND activo =?2 AND idNegocio = ?3", id, true, obj.getIdNegocio()).singleResultOptional();
@@ -172,6 +173,7 @@ public class MarcaRest {
     @PATCH
     @Path("/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response desactivarMarca(@PathParam("id") Integer id) {
         try {
             Optional<Marca> marcaOptional = this.marcaRepository.findByIdOptional(id);

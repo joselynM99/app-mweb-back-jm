@@ -40,6 +40,7 @@ public class DeudaService {
     @Inject
     AbonoRepository abonoRepository;
 
+    @Transactional
     public Response generarDeuda(DeudaDTO obj) {
         try {
             Deuda deuda = new Deuda();
@@ -260,6 +261,7 @@ public class DeudaService {
         }
     }
 
+    @Transactional
     public Response registrarAbono(AbonoDTO abonoDTO) {
         try {
             Optional<Deuda> deudaOptional = this.deudaRepository.findByIdOptional(abonoDTO.getIdDeuda());

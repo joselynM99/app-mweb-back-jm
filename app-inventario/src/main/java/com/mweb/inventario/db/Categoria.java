@@ -17,16 +17,16 @@ public class Categoria {
 	@Column(name = "cate_id")
 	private Integer id;
 
-	@Column(name = "cate_nombre")
+	@Column(name = "cate_nombre", nullable = false)
 	private String nombre;
 	
-	@Column(name = "cate_descripcion")
+	@Column(name = "cate_descripcion", nullable = false)
 	private String descripcion;
 
 	@Column(name = "cate_activo")
 	private boolean activo;
 
-	@Column(name = "cate_id_negocio")
+	@Column(name = "cate_id_negocio", nullable = false)
 	private Integer idNegocio;
 	
 	@OneToMany(mappedBy = "categoria", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})

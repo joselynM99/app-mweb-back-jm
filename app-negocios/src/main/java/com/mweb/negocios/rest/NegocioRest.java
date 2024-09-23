@@ -13,7 +13,6 @@ import com.mweb.negocios.service.KeycloakService;
 import io.quarkus.oidc.AccessTokenCredential;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.security.Authenticated;
-import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -30,7 +29,6 @@ import java.util.stream.Collectors;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-@Transactional
 public class NegocioRest {
 
 
@@ -49,7 +47,7 @@ public class NegocioRest {
     @Inject
     AccessTokenCredential accessTokenCredential;
 
-    // NegocioRest.java
+    // Usuarios
     @GET
     @Path("/roles")
     @Authenticated
@@ -72,6 +70,7 @@ public class NegocioRest {
     @POST
     @Path("/usuarios")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response registrarUsuario(UsuarioDTO usuarioDTO) {
         try {
             // Check if the negocio exists
@@ -108,6 +107,7 @@ public class NegocioRest {
     @PUT
     @Path("/usuarios/{keycloakId}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response actualizarUsuario(@PathParam("keycloakId") String userId, UsuarioDTO usuarioDTO) {
         try {
             // Check if the user exists in the local database by Keycloak ID
@@ -134,7 +134,6 @@ public class NegocioRest {
             usuario.setTelefono(usuarioDTO.getTelefono());
             usuario.setIdentificacion(usuarioDTO.getIdentificacion());
             usuario.setRol(rolOpt.get());
-            usuarioRepository.persist(usuario);
 
             return Response.ok("Usuario actualizado exitosamente").build();
         } catch (Exception e) {
@@ -170,6 +169,25 @@ public class NegocioRest {
         }
     }
 
+    @GET
+    @Path("/usuarios/buscarPorNegocio")
+    @Authenticated
+    public Response buscarUsuarioPorNombreUsuarioNegocio(@QueryParam("username") String username, @QueryParam("idNegocio") Integer idNegocio) {
+        try {
+            Optional<Usuario> usuarioOpt = usuarioRepository.find("nombreUsuario = ?1 and negocio.id = ?2 and activo = true", username, idNegocio).firstResultOptional();
+            if (usuarioOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND).entity("No se encontró un usuario activo con el nombre de usuario e id de negocio especificados").build();
+            }
+
+            UsuarioDTO usuarioDTO = UsuarioDTO.from(usuarioOpt.get());
+            return Response.ok(usuarioDTO).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Ha ocurrido un error al buscar el usuario")
+                    .build();
+        }
+    }
 
     @GET
     @Path("/usuarios/buscar")
@@ -191,8 +209,35 @@ public class NegocioRest {
         }
     }
 
+    @DELETE
+    @Path("/usuarios/{id}")
+    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
+    public Response eliminarUsuario(@PathParam("id") String userId, @QueryParam("idNegocio") Integer idNegocio) {
+        try {
+            Optional<Usuario> usuarioOpt = usuarioRepository.find("keycloakId = ?1 and negocio.id = ?2", userId, idNegocio).firstResultOptional();
+            if (usuarioOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND).entity("Usuario no encontrado").build();
+            }
+
+            keycloakService.deleteUser(userId);
+            Usuario usuario = usuarioOpt.get();
+            usuario.setActivo(false);
+            usuario.setKeycloakId(null);
+            return Response.ok("Usuario eliminado exitosamente").build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Ha ocurrido un error al eliminar el usuario")
+                    .build();
+        }
+    }
+
+
+    //Negocio
     @POST
     @RolesAllowed("ADMINISTRADOR")
+    @Transactional
     public Response registrarNegocio(NegocioDTO negocioDTO) {
         try {
             Optional<Negocio> existingNegocio = negocioRepository.find("nombreComercial = ?1 or razonSocial = ?2 or ruc = ?3 and activo = true", negocioDTO.getNombreComercial(), negocioDTO.getRazonSocial(), negocioDTO.getRuc()).firstResultOptional();
@@ -217,12 +262,16 @@ public class NegocioRest {
     @PUT
     @Path("/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response actualizarNegocio(@PathParam("id") Integer id, NegocioDTO negocioDTO) {
+
         try {
             Optional<Negocio> negocioOpt = negocioRepository.findByIdOptional(id);
             if (negocioOpt.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("Negocio no encontrado").build();
             }
+
+            System.out.println("Actualizando negocio2: " + negocioDTO.toString());
             Optional<Negocio> existingNegocioOPt = negocioRepository.find("id != ?1 and (nombreComercial = ?2 or razonSocial = ?3 or ruc = ?4) and activo = true", id, negocioDTO.getNombreComercial(), negocioDTO.getRazonSocial(), negocioDTO.getRuc()).firstResultOptional();
             if (existingNegocioOPt.isPresent()) {
                 return Response.status(Response.Status.CONFLICT)
@@ -332,6 +381,7 @@ public class NegocioRest {
     @PATCH
     @Path("/{id}")
     @RolesAllowed("ADMINISTRADOR")
+    @Transactional
     public Response desactivarNegocio(@PathParam("id") Integer id) {
         try {
             Optional<Negocio> negocioOpt = negocioRepository.findByIdOptional(id);
@@ -349,27 +399,5 @@ public class NegocioRest {
         }
     }
 
-    @DELETE
-    @Path("/usuarios/{id}")
-    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
-    public Response eliminarUsuario(@PathParam("id") String userId) {
-        try {
-            Optional<Usuario> usuarioOpt = usuarioRepository.find("keycloakId", userId).firstResultOptional();
-            if (usuarioOpt.isEmpty()) {
-                return Response.status(Response.Status.NOT_FOUND).entity("Usuario no encontrado").build();
-            }
-
-            keycloakService.deleteUser(userId);
-            Usuario usuario = usuarioOpt.get();
-            usuario.setActivo(false);
-            usuario.setKeycloakId(null);
-            return Response.ok("Usuario eliminado exitosamente").build();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity("Ha ocurrido un error al eliminar el usuario")
-                    .build();
-        }
-    }
 
 }

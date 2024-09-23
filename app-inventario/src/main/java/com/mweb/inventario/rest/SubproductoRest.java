@@ -28,7 +28,6 @@ import java.util.Optional;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-@Transactional
 public class SubproductoRest {
 
     @Inject
@@ -43,6 +42,7 @@ public class SubproductoRest {
 
     @POST
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response registrarSubproducto(SubproductoDTO obj) {
         try {
             Optional<Producto> producto = this.productoRepository.find("codigoBarras = ?1 AND activo = true AND idNegocio = ?2", obj.getCodigoBarras(), obj.getIdNegocio()).singleResultOptional();
@@ -82,6 +82,7 @@ public class SubproductoRest {
     @PUT
     @Path("/{codigoBarras}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response actualizarSubproducto(@PathParam("codigoBarras") String codigoBarras, SubproductoDTO obj) {
         try {
             Optional<Subproducto> subproductoOpt = this.subproductoRepository.find("codigoBarras = ?1 AND activo =?2 AND idNegocio = ?3", codigoBarras, true, obj.getIdNegocio()).singleResultOptional();
@@ -222,7 +223,7 @@ public class SubproductoRest {
 
     @GET
     @Path("/buscar-por-producto/{codigo}/proveedor/{proveedorId}")
-    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+
     public Response listaSubproductosPorProductoYProveedor(@PathParam("codigo") String codigo, @PathParam("proveedorId") String proveedorId, @QueryParam("idNegocio") Integer idNegocio) {
         try {
             Optional<Producto> productoOpt = this.productoRepository.find("codigoBarras = ?1 AND idNegocio = ?2 AND activo = true AND proveedor.identificacion = ?3", codigo, idNegocio, proveedorId).singleResultOptional();
@@ -258,7 +259,8 @@ public class SubproductoRest {
 
     @PATCH
     @Path("/{id}")
-    //@RolesAllowed({"admin"})
+    @Transactional
+    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
     public Response desactivarSubproducto(@PathParam("id") Integer id) {
         try {
             Optional<Subproducto> subproductoOptional = this.subproductoRepository.findByIdOptional(id);

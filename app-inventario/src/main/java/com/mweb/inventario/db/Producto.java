@@ -27,22 +27,22 @@ public class Producto {
     @Column(name = "prod_descripcion")
     private String descripcion;
 
-    @Column(name = "prod_costo_promedio")
+    @Column(name = "prod_costo_promedio", nullable = false)
     private BigDecimal costoPromedio;
 
-    @Column(name = "prod_precio_sin_impuestos")
+    @Column(name = "prod_precio_sin_impuestos", nullable = false)
     private BigDecimal precioSinImpuestos;
 
-    @Column(name = "prod_precio_venta")
+    @Column(name = "prod_precio_venta", nullable = false)
     private BigDecimal precioVenta;
 
-    @Column(name = "prod_stock_actual")
+    @Column(name = "prod_stock_actual", nullable = false)
     private Double stockActual;
 
-    @Column(name = "prod_activo")
+    @Column(name = "prod_activo", nullable = false)
     private boolean activo;
 
-    @Column(name = "prod_id_negocio")
+    @Column(name = "prod_id_negocio", nullable = false)
     private Integer idNegocio;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,7 +58,7 @@ public class Producto {
     private Proveedor proveedor;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "impu_id")
+    @JoinColumn(name = "impu_id", nullable = false)
     private Impuesto impuesto;
 
     @OneToMany(mappedBy = "producto", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})

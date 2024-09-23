@@ -25,7 +25,6 @@ public class VentaRest {
 
 
     @POST
-    @Transactional
     @Authenticated
     public Response registrarVentas(VentaRequestDTO obj) {
         return ventaService.registrarVentas(obj);

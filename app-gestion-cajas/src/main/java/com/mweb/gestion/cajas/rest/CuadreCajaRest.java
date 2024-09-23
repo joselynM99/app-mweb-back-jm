@@ -15,7 +15,7 @@ import jakarta.ws.rs.core.Response;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Path("/cuadre-caja")
+@Path("/gestion-cajas")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 public class CuadreCajaRest {
@@ -27,6 +27,7 @@ public class CuadreCajaRest {
     @Path("/caja")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
     public Response crearCaja(CajaDTO cajaDTO) {
+        System.out.println("Creando caja: " + cajaDTO.toString());
         try {
             CajaDTO createdCaja = cuadreCajaService.crearCaja(cajaDTO);
             return Response.ok(createdCaja).build();

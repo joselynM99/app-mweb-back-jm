@@ -7,11 +7,13 @@ import lombok.Data;
 public class CajaDTO {
     private Integer id;
     private String nombre;
+    private Integer idNegocio;
 
     public static CajaDTO from(Caja caja) {
         CajaDTO dto = new CajaDTO();
         dto.setId(caja.getId());
         dto.setNombre(caja.getNombre());
+        dto.setIdNegocio(caja.getIdNegocio());
         return dto;
     }
 
@@ -19,6 +21,7 @@ public class CajaDTO {
         Caja caja = new Caja();
         caja.setId(dto.getId());
         caja.setNombre(dto.getNombre());
+        caja.setIdNegocio(dto.getIdNegocio());
         return caja;
     }
 }

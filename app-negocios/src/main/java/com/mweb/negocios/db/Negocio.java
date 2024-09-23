@@ -28,9 +28,8 @@ public class Negocio {
     @Column(name = "nego_razon_social", unique = true, nullable = false)
     private String razonSocial;
 
-    @Column(name = "nego_activo" )
+    @Column(name = "nego_activo", nullable = false )
     private boolean activo;
-
 
     @Column(name = "nego_ruc", nullable = false, unique = true)
     private String ruc;

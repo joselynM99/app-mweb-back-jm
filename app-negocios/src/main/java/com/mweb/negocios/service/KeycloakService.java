@@ -4,6 +4,7 @@ package com.mweb.negocios.service;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
+import jakarta.transaction.Transactional;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.Entity;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Map;
 
 @ApplicationScoped
+@Transactional
 public class KeycloakService {
 
     @ConfigProperty(name = "quarkus.oidc.auth-server-url")

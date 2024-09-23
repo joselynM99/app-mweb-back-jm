@@ -23,7 +23,6 @@ public class CompraRest {
 
 
     @POST
-    @Transactional
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
     public Response registrarCompras(CompraRequestDTO obj) {
         return compraService.registrarCompras(obj);

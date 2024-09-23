@@ -18,16 +18,16 @@ public class Proveedor {
     private Integer id;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "prov_tipo_id")
+    @Column(name = "prov_tipo_id", nullable = false)
     private TipoIdentificacion tipoIdentificacion;
 
     @Column(name = "prov_identificacion", nullable = false)
     private String identificacion;
 
-    @Column(name = "prov_razon_social")
+    @Column(name = "prov_razon_social", nullable = false)
     private String razonSocial;
 
-    @Column(name = "prov_nombre_comercial")
+    @Column(name = "prov_nombre_comercial", nullable = false)
     private String nombreComercial;
 
     @Column(name = "prov_telefono")
@@ -39,10 +39,10 @@ public class Proveedor {
     @Column(name = "prov_direccion")
     private String direccion;
 
-    @Column(name = "prov_activo")
+    @Column(name = "prov_activo", nullable = false)
     private boolean activo;
 
-    @Column(name = "prov_id_negocio")
+    @Column(name = "prov_id_negocio", nullable = false)
     private Integer idNegocio;
 
     @OneToMany(mappedBy = "proveedor", cascade = {CascadeType.PERSIST, CascadeType.REMOVE})

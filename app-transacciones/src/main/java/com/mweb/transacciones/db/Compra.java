@@ -29,13 +29,13 @@ public class Compra {
     private Integer id;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    @Column(name = "comp_fecha")
+    @Column(name = "comp_fecha", nullable = false)
     private LocalDateTime fecha;
 
-    @Column(name = "comp_total")
+    @Column(name = "comp_total", nullable = false)
     private BigDecimal total;
 
-    @Column(name = "comp_pago_transferencia")
+    @Column(name = "comp_pago_transferencia", nullable = false)
     private Boolean pagoTransferencia;
 
     @OneToMany(mappedBy = "compra", cascade = CascadeType.ALL)
@@ -44,18 +44,18 @@ public class Compra {
     @Column(name = "prov_identificacion")
     private String proveedorIdentificacion;
 
-    @Column(name = "comp_activo")
+    @Column(name = "comp_activo", nullable = false)
     private Boolean activo;
 
-    @Column(name = "comp_numero_referencia")
+    @Column(name = "comp_numero_referencia", nullable = false)
     private Integer numeroReferencia;
 
-    @Column(name = "comp_id_cuadre_caja")
+    @Column(name = "comp_id_cuadre_caja", nullable = false)
     private Integer idCuadreCaja;
 
-    @Column(name = "comp_id_negocio")
+    @Column(name = "comp_id_negocio", nullable = false)
     private Integer idNegocio;
 
-    @Column(name = "comp_username")
+    @Column(name = "comp_username", nullable = false)
     private String username;
 }

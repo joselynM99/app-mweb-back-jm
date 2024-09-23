@@ -29,16 +29,16 @@ public class Cliente {
     private Integer id;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "clie_tipo_id")
+    @Column(name = "clie_tipo_id", nullable = false)
     private TipoIdentificacion tipoId;
 
-    @Column(name = "clie_identificacion")
+    @Column(name = "clie_identificacion", nullable = false)
     private String identificacion;
 
-    @Column(name = "clie_apellidos")
+    @Column(name = "clie_apellidos", nullable = false)
     private String apellidos;
 
-    @Column(name = "clie_nombres")
+    @Column(name = "clie_nombres", nullable = false)
     private String nombres;
 
     @Column(name = "clie_telefono")
@@ -50,10 +50,10 @@ public class Cliente {
     @Column(name = "clie_direccion")
     private String direccion;
 
-    @Column(name = "clie_activo")
+    @Column(name = "clie_activo", nullable = false)
     private boolean activo;
 
-    @Column(name = "clie_id_negocio")
+    @Column(name = "clie_id_negocio", nullable = false)
     private Integer idNegocio;
 
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL)

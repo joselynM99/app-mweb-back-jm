@@ -21,8 +21,6 @@ import java.util.Optional;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-@Transactional
-@Authenticated
 public class ProveedorRest {
 
 //    @Inject
@@ -33,6 +31,7 @@ public class ProveedorRest {
 
     @POST
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response registrarProveedor(ProveedorDTO obj) {
         try {
             Optional<Proveedor> proveedor = this.proveedorRepository.find("identificacion = ?1 AND activo = true AND idNegocio = ?2", obj.getIdentificacion(), obj.getIdNegocio()).singleResultOptional();
@@ -59,6 +58,7 @@ public class ProveedorRest {
     @PUT
     @Path("/{identificacion}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response actualizarProveedor(@PathParam("identificacion") String identificacion, ProveedorDTO obj) {
         try {
             Optional<Proveedor> proveedorOpt = this.proveedorRepository.find("identificacion = ?1 AND activo =?2 AND idNegocio = ?3", identificacion, true, obj.getIdNegocio()).singleResultOptional();
@@ -157,6 +157,7 @@ public class ProveedorRest {
     @PATCH
     @Path("/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response desactivarProveedor(@PathParam("id") Integer id) {
         try {
             Optional<Proveedor> proveedorOptional = this.proveedorRepository.findByIdOptional(id);

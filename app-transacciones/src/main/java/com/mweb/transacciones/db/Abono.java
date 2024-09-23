@@ -26,18 +26,18 @@ public class Abono {
     @Column(name = "abon_id")
     private Integer id;
 
-    @Column(name = "abon_id_cuadre_caja")
+    @Column(name = "abon_id_cuadre_caja", nullable = false)
     private Integer idCuadreCaja;
 
-    @Column(name = "abon_monto")
+    @Column(name = "abon_monto", nullable = false)
     private BigDecimal monto;
 
-    @Column(name = "abon_fecha")
+    @Column(name = "abon_fecha", nullable = false)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime fecha;
 
     @ManyToOne
-    @JoinColumn(name = "deud_id")
+    @JoinColumn(name = "deud_id", nullable = false)
     private Deuda deuda;
 
 }

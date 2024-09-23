@@ -17,12 +17,15 @@ public class Impuesto {
 	@Column(name = "impu_id")
 	private Integer id;
 	
-	@Column(name = "impu_valor")
+	@Column(name = "impu_valor", nullable = false)
 	private Double valor;
 	
-	@Column(name = "impu_tipo_impuesto")
+	@Column(name = "impu_tipo_impuesto", nullable = false)
 	@Enumerated(value = EnumType.STRING)
 	private TipoImpuesto tipoImpuesto;
+
+	@Column(name = "impu_activo", nullable = false)
+	private boolean activo;
 	
 	@OneToMany(mappedBy = "impuesto", cascade = CascadeType.ALL)
 	private List<Producto> productos;

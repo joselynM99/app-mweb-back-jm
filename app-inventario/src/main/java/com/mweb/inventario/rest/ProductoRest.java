@@ -6,7 +6,6 @@ import com.mweb.inventario.dtos.ProductoListaDTO;
 import com.mweb.inventario.repo.*;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.security.Authenticated;
-import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -22,8 +21,6 @@ import java.util.Optional;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-@Transactional
-//@Authenticated
 public class ProductoRest {
 
     @Inject
@@ -43,6 +40,7 @@ public class ProductoRest {
 
     @POST
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response registrarProducto(ProductoDTO obj) {
         try {
             Optional<Producto> producto = this.productoRepository.find("codigoBarras = ?1 AND activo = true AND idNegocio = ?2", obj.getCodigoBarras(), obj.getIdNegocio()).singleResultOptional();
@@ -55,19 +53,36 @@ public class ProductoRest {
             } else {
                 Producto ret = ProductoDTO.from(obj);
 
-                Optional<Proveedor> proveedorOpt = this.proveedorRepository.find("identificacion = ?1 AND idNegocio = ?2", obj.getProveedor(), obj.getIdNegocio()).firstResultOptional();
-                Optional<Marca> marcaOpt = this.marcaRepository.findByIdOptional(obj.getMarca());
-                Optional<Impuesto> impuestoOpt = this.impuestoRepository.findByIdOptional(obj.getImpuesto());
-                Optional<Categoria> categoriaOpt = this.categoriaRepository.findByIdOptional(obj.getCategoria());
-
-                if (proveedorOpt.isEmpty() || marcaOpt.isEmpty() || impuestoOpt.isEmpty() || categoriaOpt.isEmpty()) {
-                    return Response.status(Response.Status.BAD_REQUEST).entity("Proveedor, Marca, Impuesto o Categoria no encontrados").build();
+                if (obj.getProveedor() != null) {
+                    Optional<Proveedor> proveedorOpt = this.proveedorRepository.find("identificacion = ?1 AND idNegocio = ?2", obj.getProveedor(), obj.getIdNegocio()).firstResultOptional();
+                    if (proveedorOpt.isEmpty()) {
+                        return Response.status(Response.Status.BAD_REQUEST).entity("Proveedor no encontrado").build();
+                    }
+                    ret.setProveedor(proveedorOpt.get());
                 }
 
-                ret.setCategoria(categoriaOpt.get());
+                if (obj.getMarca() != null) {
+                    Optional<Marca> marcaOpt = this.marcaRepository.findByIdOptional(obj.getMarca());
+                    if (marcaOpt.isEmpty()) {
+                        return Response.status(Response.Status.BAD_REQUEST).entity("Marca no encontrada").build();
+                    }
+                    ret.setMarca(marcaOpt.get());
+                }
+
+                if (obj.getCategoria() != null) {
+                    Optional<Categoria> categoriaOpt = this.categoriaRepository.findByIdOptional(obj.getCategoria());
+                    if (categoriaOpt.isEmpty()) {
+                        return Response.status(Response.Status.BAD_REQUEST).entity("Categoría no encontrada").build();
+                    }
+                    ret.setCategoria(categoriaOpt.get());
+                }
+
+                Optional<Impuesto> impuestoOpt = this.impuestoRepository.findByIdOptional(obj.getImpuesto());
+                if (impuestoOpt.isEmpty()) {
+                    return Response.status(Response.Status.BAD_REQUEST).entity("Impuesto no encontrado").build();
+                }
                 ret.setImpuesto(impuestoOpt.get());
-                ret.setMarca(marcaOpt.get());
-                ret.setProveedor(proveedorOpt.get());
+
                 ret.setActivo(true);
                 ret.setIdNegocio(obj.getIdNegocio());
 
@@ -85,6 +100,7 @@ public class ProductoRest {
     @PUT
     @Path("/{codigoBarras}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response actualizarProducto(@PathParam("codigoBarras") String codigoBarras, ProductoDTO obj) {
         try {
             Optional<Producto> productoOpt = this.productoRepository.find("codigoBarras = ?1 AND activo =?2 AND idNegocio = ?3", codigoBarras, true, obj.getIdNegocio()).singleResultOptional();
@@ -101,20 +117,36 @@ public class ProductoRest {
             ret.setPrecioVenta(obj.getPrecioVenta());
             ret.setStockActual(obj.getStockActual());
 
-            // Manejo de excepciones para las busquedas
-            Optional<Proveedor> proveedorOpt = this.proveedorRepository.find("identificacion = ?1 AND idNegocio = ?2", obj.getProveedor(), obj.getIdNegocio()).firstResultOptional();
-            Optional<Marca> marcaOpt = this.marcaRepository.findByIdOptional(obj.getMarca());
-            Optional<Impuesto> impuestoOpt = this.impuestoRepository.findByIdOptional(obj.getImpuesto());
-            Optional<Categoria> categoriaOpt = this.categoriaRepository.findByIdOptional(obj.getCategoria());
-
-            if (proveedorOpt.isEmpty() || marcaOpt.isEmpty() || impuestoOpt.isEmpty() || categoriaOpt.isEmpty()) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Proveedor, Marca, Impuesto o Categoría no encontrados").build();
+            if (obj.getProveedor() != null) {
+                Optional<Proveedor> proveedorOpt = this.proveedorRepository.find("identificacion = ?1 AND idNegocio = ?2", obj.getProveedor(), obj.getIdNegocio()).firstResultOptional();
+                if (proveedorOpt.isEmpty()) {
+                    return Response.status(Response.Status.BAD_REQUEST).entity("Proveedor no encontrado").build();
+                }
+                ret.setProveedor(proveedorOpt.get());
             }
 
-            ret.setCategoria(categoriaOpt.get());
+            if (obj.getMarca() != null) {
+                Optional<Marca> marcaOpt = this.marcaRepository.findByIdOptional(obj.getMarca());
+                if (marcaOpt.isEmpty()) {
+                    return Response.status(Response.Status.BAD_REQUEST).entity("Marca no encontrada").build();
+                }
+                ret.setMarca(marcaOpt.get());
+            }
+
+            if (obj.getCategoria() != null) {
+                Optional<Categoria> categoriaOpt = this.categoriaRepository.findByIdOptional(obj.getCategoria());
+                if (categoriaOpt.isEmpty()) {
+                    return Response.status(Response.Status.BAD_REQUEST).entity("Categoría no encontrada").build();
+                }
+                ret.setCategoria(categoriaOpt.get());
+            }
+
+            Optional<Impuesto> impuestoOpt = this.impuestoRepository.findByIdOptional(obj.getImpuesto());
+            if (impuestoOpt.isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Impuesto no encontrado").build();
+            }
             ret.setImpuesto(impuestoOpt.get());
-            ret.setMarca(marcaOpt.get());
-            ret.setProveedor(proveedorOpt.get());
+
             ret.setIdNegocio(obj.getIdNegocio());
             return Response.ok("Producto actualizado exitosamente").build();
 
@@ -215,6 +247,34 @@ public class ProductoRest {
     }
 
     @GET
+    @Path("/buscar-por-nombre/{nombre}")
+    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    public Response listaProductosPorNombre(@PathParam("nombre") String nombre, @QueryParam("idNegocio") Integer idNegocio) {
+        try {
+            String consulta = "LOWER(nombre) LIKE CONCAT('%', :nombre, '%') AND activo = true AND idNegocio = :idNegocio";
+            List<Producto> productos = this.productoRepository.list(consulta, Parameters.with("nombre", nombre.toLowerCase())
+                    .and("idNegocio", idNegocio)
+                    .map());
+
+            if (productos.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("No se encontraron productos con el nombre y proveedor especificados")
+                        .build();
+            }
+
+            List<ProductoListaDTO> productosDTO = ProductoListaDTO.fromProductos(productos);
+            return Response.ok(productosDTO).build();
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Ha ocurrido un error al obtener los productos")
+                    .build();
+        }
+    }
+
+
+    @GET
     @Path("/buscar-por-nombre/{nombre}/proveedor/{proveedorId}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
     public Response listaProductosPorNombreYProveedor(@PathParam("nombre") String nombre, @PathParam("proveedorId") String proveedorId, @QueryParam("idNegocio") Integer idNegocio) {
@@ -245,6 +305,7 @@ public class ProductoRest {
     @PATCH
     @Path("/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response desactivarProducto(@PathParam("id") Integer id) {
         try {
             Optional<Producto> productoOptional = this.productoRepository.findByIdOptional(id);

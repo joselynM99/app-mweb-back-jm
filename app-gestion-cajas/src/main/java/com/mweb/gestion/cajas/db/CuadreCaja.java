@@ -29,31 +29,31 @@ public class CuadreCaja {
     @Column(name = "cc_fecha_cierre")
     private LocalDateTime fechaCierre;
 
-    @Column(name = "cc_total_ingresos_efectivo", nullable = false)
+    @Column(name = "cc_total_ingresos_efectivo")
     private BigDecimal totalIngresosEfectivo;
 
-    @Column(name = "cc_total_ingresos_transferencia", nullable = false)
+    @Column(name = "cc_total_ingresos_transferencia")
     private BigDecimal totalIngresosTransferencia;
 
-    @Column(name = "cc_total_gastos_efectivo", nullable = false)
+    @Column(name = "cc_total_gastos_efectivo")
     private BigDecimal totalGastosEfectivo;
 
-    @Column(name = "cc_total_gastos_transferencia", nullable = false)
+    @Column(name = "cc_total_gastos_transferencia")
     private BigDecimal totalGastosTransferencia;
 
-    @Column(name = "cc_saldo_final_efectivo", nullable = false)
+    @Column(name = "cc_saldo_final_efectivo")
     private BigDecimal saldoFinalEfectivo;
 
-    @Column(name = "cc_saldo_final_transferencia", nullable = false)
+    @Column(name = "cc_saldo_final_transferencia")
     private BigDecimal saldoFinalTransferencia;
 
-    @Column(name = "cc_valor_contable", nullable = false)
+    @Column(name = "cc_valor_contable")
     private BigDecimal valorContable;
 
-    @Column(name = "cc_diferencia", nullable = false)
+    @Column(name = "cc_diferencia")
     private BigDecimal diferencia;
 
-    @Column(name = "cc_valor_cierre", nullable = false)
+    @Column(name = "cc_valor_cierre")
     private BigDecimal valorCierre;
 
     @Column(name = "cc_valor_apertura", nullable = false)

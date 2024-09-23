@@ -25,14 +25,14 @@ public class DetalleDeuda {
     @Column(name = "dede_id")
     private Integer id;
 
-    @Column(name = "dede_cantidad")
+    @Column(name = "dede_cantidad", nullable = false)
     private Double cantidad;
 
-    @Column(name = "dede_total")
+    @Column(name = "dede_total", nullable = false)
     private BigDecimal total;
 
     @ManyToOne
-    @JoinColumn(name = "deuda_id")
+    @JoinColumn(name = "deuda_id", nullable = false)
     private Deuda deuda;
 
     @Column(name = "prod_codigo_barras")

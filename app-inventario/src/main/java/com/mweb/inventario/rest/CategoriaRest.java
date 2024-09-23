@@ -21,7 +21,6 @@ import java.util.Optional;
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @ApplicationScoped
-@Transactional
 public class CategoriaRest {
 
     @Inject
@@ -29,6 +28,7 @@ public class CategoriaRest {
 
     @POST
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response registrarCategoria(CategoriaDTO obj) {
         try {
 
@@ -58,6 +58,7 @@ public class CategoriaRest {
     @PUT
     @Path("/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response actualizarCategoria(@PathParam("id") Integer id, CategoriaDTO obj) {
         try {
             Optional<Categoria> categoriaOpt = categoriaRepository.find("id = ?1 AND activo =?2", id, true).singleResultOptional();
@@ -183,6 +184,7 @@ public class CategoriaRest {
     @PATCH
     @Path("/{id}")
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    @Transactional
     public Response desactivarCategoria(@PathParam("id") Integer id) {
         try {
             Optional<Categoria> categoriaOptional = this.categoriaRepository.findByIdOptional(id);
