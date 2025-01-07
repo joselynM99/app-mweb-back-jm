@@ -57,7 +57,9 @@ public class SubproductoDTO {
 		ret.setStockActual(obj.getStockActual());
 		ret.setActivo(obj.isActivo());
 		ret.setCantidadRelacionada(obj.getCantidadRelacionada());
-		ret.setCategoria(obj.getCategoria().getId());
+		if (obj.getCategoria() != null) {
+			ret.setCategoria(obj.getCategoria().getId());
+		}
 		ret.setImpuesto(obj.getImpuesto().getId());
 		ret.setProducto(obj.getProducto().getCodigoBarras());
 		ret.setIdNegocio(obj.getIdNegocio());

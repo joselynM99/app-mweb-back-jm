@@ -1,21 +1,26 @@
 package com.mweb.transacciones.service;
 
 import com.mweb.transacciones.client.InventarioRestClient;
+import com.mweb.transacciones.db.Cliente;
 import com.mweb.transacciones.db.DetalleVenta;
 import com.mweb.transacciones.db.Venta;
 import com.mweb.transacciones.dtos.*;
+import com.mweb.transacciones.repo.ClienteRepository;
 import com.mweb.transacciones.repo.DetalleVentaRepository;
 import com.mweb.transacciones.repo.VentaRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.TypedQuery;
+import jakarta.persistence.*;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import org.hibernate.Session;
 
 import java.math.BigDecimal;
+import java.sql.CallableStatement;
+import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -34,11 +39,27 @@ public class VentaService {
     @Inject
     DetalleVentaRepository detalleVentaRepository;
 
+    @Inject
+    ClienteRepository clienteRepository;
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public Integer generarNumeroFactura(Long negocioId) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT generar_numero_factura(:negocioId)");
+        query.setParameter("negocioId", negocioId);
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
+
+
     @Transactional
     public Response registrarVentas(VentaRequestDTO obj) {
         try {
             Venta venta = new Venta();
-            venta.setClienteIdentificacion(obj.getCliente());
+            Cliente cliente = clienteRepository.find("identificacion = ?1 and idNegocio = ?2", obj.getCliente(), obj.getIdNegocio()).firstResult();
+            venta.setCliente(cliente != null ? cliente : null);
             List<DetalleVenta> listaDet = new ArrayList<>();
 
             for (ProductoCarritoDTO d : obj.getDetalles()) {
@@ -80,7 +101,8 @@ public class VentaService {
                                 try {
                                     Response subproductosR = inventarioRestClient.listaSubproductosPorProducto(productoDTO.getCodigoBarras(), obj.getIdNegocio());
                                     if (subproductosR.getStatus() == 200) {
-                                        List<SubproductoDTO> subproductos = subproductosR.readEntity(new GenericType<List<SubproductoDTO>>() {});
+                                        List<SubproductoDTO> subproductos = subproductosR.readEntity(new GenericType<List<SubproductoDTO>>() {
+                                        });
                                         for (SubproductoDTO sub : subproductos) {
                                             sub.setStockActual(sub.getStockActual() - (sub.getCantidadRelacionada() * d.getCantidad()));
                                             inventarioRestClient.actualizarSubproducto(sub.getCodigoBarras(), sub);
@@ -124,12 +146,11 @@ public class VentaService {
             venta.setActivo(true);
             venta.setIdCuadreCaja(obj.getIdCuadreCaja());
             venta.setIdNegocio(obj.getIdNegocio());
+            venta.setUsername(obj.getUsername());
 
-            Integer maxIdentificador = (Integer) ventaRepository.getEntityManager()
-                    .createQuery("SELECT MAX(v.numeroReferencia) FROM Venta v WHERE v.idNegocio = :idNegocio")
-                    .setParameter("idNegocio", obj.getIdNegocio())
-                    .getSingleResult();
-            venta.setNumeroReferencia(maxIdentificador == null ? 1 : maxIdentificador + 1);
+
+            Integer numeroReferencia = generarNumeroFactura(obj.getIdNegocio().longValue());
+            venta.setNumeroReferencia(numeroReferencia);
 
             this.ventaRepository.persist(venta);
 
@@ -171,7 +192,7 @@ public class VentaService {
         Venta venta = query.getSingleResult();
 
         VentaRequestDTO dto = new VentaRequestDTO();
-        dto.setCliente(venta.getClienteIdentificacion());
+        dto.setCliente(venta.getCliente().getIdentificacion());
         dto.setUsername(venta.getUsername());
         dto.setPagoTransferencia(venta.getPagoTransferencia());
         dto.setTotal(venta.getTotal());

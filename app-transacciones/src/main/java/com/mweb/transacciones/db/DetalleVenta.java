@@ -33,7 +33,7 @@ public class DetalleVenta {
 	private BigDecimal total;
 
 	@ManyToOne
-	@JoinColumn(name = "vent_id", nullable = false)
+	@JoinColumn(name = "vent_id")
 	private Venta venta;
 
 	@Column(name="prod_codigo_barras")

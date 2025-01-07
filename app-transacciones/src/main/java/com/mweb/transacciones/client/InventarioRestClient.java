@@ -2,15 +2,18 @@ package com.mweb.transacciones.client;
 
 import com.mweb.transacciones.dtos.ProductoDTO;
 import com.mweb.transacciones.dtos.SubproductoDTO;
+import io.quarkus.oidc.client.reactive.filter.OidcClientRequestReactiveFilter;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import jakarta.ws.rs.core.Response;
+import org.eclipse.microprofile.rest.client.annotation.RegisterProvider;
 import org.eclipse.microprofile.rest.client.inject.RegisterRestClient;
 
 @Path("/inventario")
 @Produces(MediaType.APPLICATION_JSON)
 @Consumes(MediaType.APPLICATION_JSON)
 @RegisterRestClient(configKey = "InventarioRestClient")
+@RegisterProvider(OidcClientRequestReactiveFilter.class)
 public interface InventarioRestClient {
     @GET
     @Path("/subproductos/{codigoBarras}")
@@ -36,9 +39,7 @@ public interface InventarioRestClient {
     @Path("/productos/{codigoBarras}/proveedor/{proveedorId}")
     Response obtenerProductoPorCodigoBarrasYProveedor(@PathParam("codigoBarras") String codigoBarras, @PathParam("proveedorId") String proveedorId, @QueryParam("idNegocio") Integer idNegocio);
 
-
     @GET
     @Path("/subproductos/buscar-por-producto/{codigo}/proveedor/{proveedorId}")
     Response listaSubproductosPorProductoYProveedor(@PathParam("codigo") String codigo, @PathParam("proveedorId") String proveedorId, @QueryParam("idNegocio") Integer idNegocio);
-
 }

@@ -223,7 +223,7 @@ public class NegocioRest {
             keycloakService.deleteUser(userId);
             Usuario usuario = usuarioOpt.get();
             usuario.setActivo(false);
-            usuario.setKeycloakId(null);
+            //usuario.setKeycloakId(null);
             return Response.ok("Usuario eliminado exitosamente").build();
         } catch (Exception e) {
             e.printStackTrace();

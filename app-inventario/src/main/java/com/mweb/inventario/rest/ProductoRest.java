@@ -6,6 +6,7 @@ import com.mweb.inventario.dtos.ProductoListaDTO;
 import com.mweb.inventario.repo.*;
 import io.quarkus.panache.common.Parameters;
 import io.quarkus.security.Authenticated;
+import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -102,6 +103,7 @@ public class ProductoRest {
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
     @Transactional
     public Response actualizarProducto(@PathParam("codigoBarras") String codigoBarras, ProductoDTO obj) {
+
         try {
             Optional<Producto> productoOpt = this.productoRepository.find("codigoBarras = ?1 AND activo =?2 AND idNegocio = ?3", codigoBarras, true, obj.getIdNegocio()).singleResultOptional();
             if (productoOpt.isEmpty()) {
@@ -123,6 +125,8 @@ public class ProductoRest {
                     return Response.status(Response.Status.BAD_REQUEST).entity("Proveedor no encontrado").build();
                 }
                 ret.setProveedor(proveedorOpt.get());
+            } else {
+                ret.setProveedor(null);
             }
 
             if (obj.getMarca() != null) {
@@ -131,6 +135,8 @@ public class ProductoRest {
                     return Response.status(Response.Status.BAD_REQUEST).entity("Marca no encontrada").build();
                 }
                 ret.setMarca(marcaOpt.get());
+            } else {
+                ret.setMarca(null);
             }
 
             if (obj.getCategoria() != null) {
@@ -139,6 +145,8 @@ public class ProductoRest {
                     return Response.status(Response.Status.BAD_REQUEST).entity("Categoría no encontrada").build();
                 }
                 ret.setCategoria(categoriaOpt.get());
+            } else {
+                ret.setCategoria(null);
             }
 
             Optional<Impuesto> impuestoOpt = this.impuestoRepository.findByIdOptional(obj.getImpuesto());
@@ -251,7 +259,7 @@ public class ProductoRest {
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
     public Response listaProductosPorNombre(@PathParam("nombre") String nombre, @QueryParam("idNegocio") Integer idNegocio) {
         try {
-            String consulta = "LOWER(nombre) LIKE CONCAT('%', :nombre, '%') AND activo = true AND idNegocio = :idNegocio";
+            String consulta = "SELECT p FROM Producto p LEFT JOIN FETCH p.categoria LEFT JOIN FETCH p.marca LEFT JOIN FETCH p.impuesto LEFT JOIN FETCH p.proveedor WHERE LOWER(p.nombre) LIKE CONCAT('%', :nombre, '%') AND p.activo = true AND p.idNegocio = :idNegocio";
             List<Producto> productos = this.productoRepository.list(consulta, Parameters.with("nombre", nombre.toLowerCase())
                     .and("idNegocio", idNegocio)
                     .map());

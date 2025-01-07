@@ -176,7 +176,10 @@ public class KeycloakService {
                 .header("Authorization", "Bearer " + token)
                 .delete();
 
-        if (response.getStatus() != 204) {
+        System.out.println("Response code: " + response.getStatus());
+
+        if (response.getStatus() != 204 && response.getStatus() != 200) {
+            System.out.println("entrando al error");
             throw new RuntimeException("Failed to delete user");
         }
     }

@@ -34,10 +34,12 @@ dependencies {
     implementation("io.quarkus:quarkus-rest-client-reactive-jackson")
 
     // OIDC and Keycloak
-    implementation("io.quarkus:quarkus-oidc")
-    implementation("io.quarkus:quarkus-oidc-client")
-    implementation("io.quarkus:quarkus-keycloak-authorization")
+    implementation("io.quarkus:quarkus-oidc")  // Para OIDC Client Reactivo
+    implementation("io.quarkus:quarkus-oidc-client-reactive-filter")  // Filtro OIDC reactivo
+    implementation("io.quarkus:quarkus-oidc-token-propagation-reactive")  // Propagación del token OIDC reactivo
+    implementation("io.quarkus:quarkus-resteasy-reactive")  // Soporte para RESTEasy Reactivo
 
+    implementation("io.quarkus:quarkus-keycloak-authorization")
     // Keycloak Admin Client
 //    implementation("org.keycloak:keycloak-admin-client") // Reemplaza 21.0.1 con la última versión compatible
 }

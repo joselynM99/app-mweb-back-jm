@@ -55,16 +55,26 @@ public class SubproductoRest {
                 Subproducto ret = SubproductoDTO.from(obj);
 
                 Optional<Impuesto> impuestoOpt = this.impuestoRepository.findByIdOptional(obj.getImpuesto());
-                Optional<Categoria> categoriaOpt = this.categoriaRepository.findByIdOptional(obj.getCategoria());
-                producto = this.productoRepository.find("codigoBarras = ?1 AND idNegocio = ?2", obj.getProducto(), obj.getIdNegocio()).singleResultOptional();
+                if (impuestoOpt.isEmpty()) {
+                    return Response.status(Response.Status.BAD_REQUEST).entity("Impuesto no encontrado").build();
+                }
 
-                if (impuestoOpt.isEmpty() || categoriaOpt.isEmpty() || producto.isEmpty()) {
-                    return Response.status(Response.Status.BAD_REQUEST).entity("Producto, Impuesto o Categoria no encontrados").build();
+                Optional<Categoria> categoriaOpt = Optional.empty();
+                if (obj.getCategoria() != null) {
+                    categoriaOpt = this.categoriaRepository.findByIdOptional(obj.getCategoria());
+                    if (categoriaOpt.isEmpty()) {
+                        return Response.status(Response.Status.BAD_REQUEST).entity("Categoría no encontrada").build();
+                    }
+                }
+
+                producto = this.productoRepository.find("codigoBarras = ?1 AND idNegocio = ?2", obj.getProducto(), obj.getIdNegocio()).singleResultOptional();
+                if (producto.isEmpty()) {
+                    return Response.status(Response.Status.BAD_REQUEST).entity("Producto no encontrado").build();
                 }
 
                 ret.setProducto(producto.get());
-                ret.setCategoria(categoriaOpt.get());
                 ret.setImpuesto(impuestoOpt.get());
+                categoriaOpt.ifPresent(ret::setCategoria);
                 ret.setActivo(true);
                 ret.setIdNegocio(obj.getIdNegocio());
 
@@ -99,18 +109,27 @@ public class SubproductoRest {
             ret.setPrecioVenta(obj.getPrecioVenta());
             ret.setStockActual(obj.getStockActual());
 
-            // Manejo de excepciones para las busquedas
             Optional<Producto> producto = this.productoRepository.find("codigoBarras = ?1 AND idNegocio = ?2", obj.getProducto(), obj.getIdNegocio()).singleResultOptional();
-            Optional<Impuesto> impuestoOpt = this.impuestoRepository.findByIdOptional(obj.getImpuesto());
-            Optional<Categoria> categoriaOpt = this.categoriaRepository.findByIdOptional(obj.getCategoria());
-
-            if (producto.isEmpty() || impuestoOpt.isEmpty() || categoriaOpt.isEmpty()) {
-                return Response.status(Response.Status.BAD_REQUEST).entity("Producto, Impuesto o Categoria no encontrados").build();
+            if (producto.isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Producto no encontrado").build();
             }
 
-            ret.setCategoria(categoriaOpt.get());
-            ret.setImpuesto(impuestoOpt.get());
+            Optional<Impuesto> impuestoOpt = this.impuestoRepository.findByIdOptional(obj.getImpuesto());
+            if (impuestoOpt.isEmpty()) {
+                return Response.status(Response.Status.BAD_REQUEST).entity("Impuesto no encontrado").build();
+            }
+
+            Optional<Categoria> categoriaOpt = Optional.empty();
+            if (obj.getCategoria() != null) {
+                categoriaOpt = this.categoriaRepository.findByIdOptional(obj.getCategoria());
+                if (categoriaOpt.isEmpty()) {
+                    return Response.status(Response.Status.BAD_REQUEST).entity("Categoría no encontrada").build();
+                }
+            }
+
             ret.setProducto(producto.get());
+            ret.setImpuesto(impuestoOpt.get());
+            categoriaOpt.ifPresent(ret::setCategoria);
             ret.setIdNegocio(obj.getIdNegocio());
             return Response.ok("Subproducto actualizado exitosamente").build();
 
@@ -168,7 +187,7 @@ public class SubproductoRest {
     @Authenticated
     public Response listaSubproductosPorNombre(@PathParam("nombre") String nombre, @QueryParam("idNegocio") Integer idNegocio) {
         try {
-            String consulta = "LOWER(nombre) LIKE CONCAT('%', :nombre, '%') AND activo = true AND idNegocio = :idNegocio";
+            String consulta = "SELECT s FROM Subproducto s LEFT JOIN FETCH s.categoria LEFT JOIN FETCH s.impuesto LEFT JOIN FETCH s.producto p LEFT JOIN FETCH p.proveedor LEFT JOIN FETCH p.marca WHERE LOWER(s.nombre) LIKE CONCAT('%', :nombre, '%') AND s.activo = true AND s.idNegocio = :idNegocio";
             List<Subproducto> subproductos = this.subproductoRepository.list(consulta, Parameters.with("nombre", nombre.toLowerCase()).and("idNegocio", idNegocio).map());
 
             if (subproductos.isEmpty()) {
@@ -177,7 +196,7 @@ public class SubproductoRest {
                         .build();
             }
 
-            List<SubproductoDTO> subproductosDTO = SubproductoDTO.fromSubproductos(subproductos);
+            List<ProductoListaDTO> subproductosDTO = ProductoListaDTO.fromSubproductos(subproductos);
             return Response.ok(subproductosDTO).build();
 
         } catch (Exception e) {
@@ -253,8 +272,6 @@ public class SubproductoRest {
                     .build();
         }
     }
-
-
 
 
     @PATCH
