@@ -33,5 +33,9 @@ public class Adicionales {
     private boolean activo;
 
     @Column(name = "adic_tipo", nullable = false)
-    private boolean tipo; // true for ingreso, false for gasto
+    private boolean tipo;
+
+
+    @Column(name = "adic_pago_transferencia", nullable = false)
+    private boolean pagoPorTransferencia;
 }

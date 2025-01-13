@@ -61,6 +61,10 @@ public class CuadreCajaService {
     public AdicionalesDTO registrarAdicional(AdicionalesDTO adicionalesDTO) {
         Adicionales adicionales = AdicionalesDTO.from(adicionalesDTO);
         adicionales.setActivo(true);
+
+        CuadreCaja cuadreCaja = cuadreCajaRepository.findById(adicionalesDTO.getCuadreCajaId());
+        adicionales.setCuadreCaja(cuadreCaja);
+        //System.out.println("Adicionales: " + adicionales.toString());
         adicionalesRepository.persist(adicionales);
         return AdicionalesDTO.from(adicionales);
     }

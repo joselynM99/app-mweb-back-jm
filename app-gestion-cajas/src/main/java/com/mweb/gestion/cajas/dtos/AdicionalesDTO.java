@@ -15,6 +15,7 @@ public class AdicionalesDTO {
     private String motivo;
     private boolean activo;
     private boolean tipo;
+    private boolean pagoPorTransferencia;
 
     public static AdicionalesDTO from(Adicionales adicionales) {
         AdicionalesDTO dto = new AdicionalesDTO();
@@ -25,24 +26,23 @@ public class AdicionalesDTO {
         dto.setMotivo(adicionales.getMotivo());
         dto.setActivo(adicionales.isActivo());
         dto.setTipo(adicionales.isTipo());
+        dto.setPagoPorTransferencia(adicionales.isPagoPorTransferencia());
+
         return dto;
     }
 
     public static Adicionales from(AdicionalesDTO dto) {
         Adicionales adicionales = new Adicionales();
         adicionales.setId(dto.getId());
-        // Assuming you have a method to fetch CuadreCaja by ID
-        adicionales.setCuadreCaja(fetchCuadreCajaById(dto.getCuadreCajaId()));
         adicionales.setValor(dto.getValor());
         adicionales.setFecha(dto.getFecha());
         adicionales.setMotivo(dto.getMotivo());
         adicionales.setActivo(dto.isActivo());
         adicionales.setTipo(dto.isTipo());
+        adicionales.setPagoPorTransferencia(dto.isPagoPorTransferencia());
+
         return adicionales;
     }
 
-    private static CuadreCaja fetchCuadreCajaById(Integer id) {
-        // Implement this method to fetch CuadreCaja by ID
-        return new CuadreCaja();
-    }
+
 }
