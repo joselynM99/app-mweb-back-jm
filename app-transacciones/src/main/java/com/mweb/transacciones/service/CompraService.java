@@ -1,16 +1,16 @@
 package com.mweb.transacciones.service;
 
 import com.mweb.transacciones.client.InventarioRestClient;
-import com.mweb.transacciones.repo.CompraRepository;
-import com.mweb.transacciones.client.InventarioRestClient;
 import com.mweb.transacciones.db.Compra;
 import com.mweb.transacciones.db.DetalleCompra;
 import com.mweb.transacciones.dtos.*;
 import com.mweb.transacciones.repo.CompraRepository;
 import com.mweb.transacciones.repo.DetalleCompraRepository;
-import com.mweb.transacciones.repo.DetalleCompraRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
@@ -36,18 +36,32 @@ public class CompraService {
     @Inject
     DetalleCompraRepository detalleCompraRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
 
+
+    public Integer generarNumeroCompra(Long negocioId) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT generar_numero_compra(:negocioId)");
+        query.setParameter("negocioId", negocioId);
+        return ((Number) query.getSingleResult()).intValue();
+    }
 
     @Transactional
     public Response registrarCompras(CompraRequestDTO obj) {
         try {
             Compra compra = new Compra();
-            compra.setProveedorIdentificacion(obj.getProveedor());
+            compra.setProveedorIdentificacion(obj.getProveedor() != null ? obj.getProveedor() : null);
             List<DetalleCompra> listaDet = new ArrayList<>();
 
             for (ProductoCarritoDTO d : obj.getDetalles()) {
                 try {
-                    Response productoResponse = inventarioRestClient.obtenerProductoPorCodigoBarrasYProveedor(d.getCodigoBarras(), obj.getProveedor(),obj.getIdNegocio());
+                    Response productoResponse;
+                    if (obj.getProveedor()==null) {
+                         productoResponse = inventarioRestClient.obtenerProductoCodigoBarras(d.getCodigoBarras(), obj.getIdNegocio());
+                    } else {
+                         productoResponse = inventarioRestClient.obtenerProductoPorCodigoBarrasYProveedor(d.getCodigoBarras(), obj.getProveedor(), obj.getIdNegocio());
+                    }
                     if (productoResponse.getStatus() == 200) {
                         ProductoDTO productoDTO = productoResponse.readEntity(ProductoDTO.class);
                         productoDTO.setStockActual(productoDTO.getStockActual() + d.getCantidad());
@@ -62,7 +76,12 @@ public class CompraService {
 
                         // Check and update subproducts stock
                         try {
-                            Response subproductosResponse = inventarioRestClient.listaSubproductosPorProductoYProveedor(productoDTO.getCodigoBarras(), obj.getProveedor(), obj.getIdNegocio());
+                            Response subproductosResponse;
+                            if (obj.getProveedor()==null) {
+                                 subproductosResponse = inventarioRestClient.listaSubproductosPorProducto(productoDTO.getCodigoBarras(), obj.getIdNegocio());
+                            } else {
+                                 subproductosResponse = inventarioRestClient.listaSubproductosPorProductoYProveedor(productoDTO.getCodigoBarras(), obj.getProveedor(), obj.getIdNegocio());
+                            }
                             if (subproductosResponse.getStatus() == 200) {
                                 List<SubproductoDTO> subproductos = subproductosResponse.readEntity(new GenericType<List<SubproductoDTO>>() {
                                 });
@@ -95,12 +114,8 @@ public class CompraService {
             compra.setIdNegocio(obj.getIdNegocio());
             compra.setUsername(obj.getUsername());
 
-            Integer maxIdentificador = (Integer) compraRepository.getEntityManager()
-                    .createQuery("SELECT MAX(c.numeroReferencia) FROM Compra c WHERE c.idNegocio = :idNegocio")
-                    .setParameter("idNegocio", obj.getIdNegocio())
-                    .getSingleResult();
-            compra.setNumeroReferencia(maxIdentificador == null ? 1 : maxIdentificador + 1);
-
+            Integer numeroReferencia = generarNumeroCompra(obj.getIdNegocio().longValue());
+            compra.setNumeroReferencia(numeroReferencia);
             this.compraRepository.persist(compra);
 
             for (DetalleCompra detalleCompra : listaDet) {

@@ -36,6 +36,9 @@ public class Abono {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
     private LocalDateTime fecha;
 
+    @Column(name = "abon_pago_transferencia")
+    private Boolean pagoTransferencia;
+
     @ManyToOne
     @JoinColumn(name = "deud_id", nullable = false)
     private Deuda deuda;

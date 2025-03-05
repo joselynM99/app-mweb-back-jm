@@ -44,7 +44,7 @@ public class Usuario {
     private String telefono;
 
     @ManyToOne
-    @JoinColumn(name = "usua_negocio_id", nullable = false)
+    @JoinColumn(name = "usua_negocio_id")
     private Negocio negocio;
 
     @ManyToOne

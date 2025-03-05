@@ -21,12 +21,10 @@ public class DeudaDTO {
     private LocalDateTime fecha;
     private Boolean estado;
     private Integer numeroReferencia;
-
     private String clienteId;
     private String clienteNombre;
     private List<DetalleDeudaDTO> detalles;
     private List<AbonoDTO> abonos;
-
     private Integer idNegocio;
 
     public static Deuda from(DeudaDTO obj) {

@@ -237,6 +237,7 @@ public class ProductoRest {
     @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
     public Response listaProductosPorProveedor(@QueryParam("idNegocio") Integer idNegocio, @PathParam("proveedorId") String proveedorId) {
         try {
+
             List<Producto> productosActivos = this.productoRepository.find("activo = ?1 AND idNegocio = ?2 AND proveedor.identificacion = ?3", true, idNegocio, proveedorId).list();
 
             if (productosActivos.isEmpty()) {

@@ -12,6 +12,9 @@ import com.mweb.transacciones.repo.DetalleDeudaRepository;
 import com.mweb.transacciones.repo.DeudaRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.GenericType;
@@ -40,11 +43,22 @@ public class DeudaService {
     @Inject
     AbonoRepository abonoRepository;
 
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    public Integer generarNumeroDeuda(Long negocioId) {
+        Query query = entityManager.createNativeQuery(
+                "SELECT generar_numero_deuda(:negocioId)");
+        query.setParameter("negocioId", negocioId);
+        return ((Number) query.getSingleResult()).intValue();
+    }
+
     @Transactional
     public Response generarDeuda(DeudaDTO obj) {
         try {
             Deuda deuda = new Deuda();
             deuda.setEstado(true);
+
             deuda.setCliente(this.clienteRepository.find("identificacion = ?1 AND activo =?2 AND idNegocio = ?3", obj.getClienteId(), true, obj.getIdNegocio()).singleResult());
             List<DetalleDeuda> listaDet = new ArrayList<>();
 
@@ -114,16 +128,11 @@ public class DeudaService {
                 }
             }
 
-            deuda.setDetalles(listaDet);
             deuda.setFecha(LocalDateTime.now());
             deuda.setTotal(obj.getTotal());
             deuda.setIdNegocio(obj.getIdNegocio());
-            // Generate sequential identificadorNegocio for the business
-            Integer maxIdentificador = (Integer) deudaRepository.getEntityManager()
-                    .createQuery("SELECT MAX(d.numeroReferencia) FROM Deuda d WHERE d.cliente.idNegocio = :idNegocio")
-                    .setParameter("idNegocio", obj.getIdNegocio())
-                    .getSingleResult();
-            deuda.setNumeroReferencia(maxIdentificador == null ? 1 : maxIdentificador + 1);
+            Integer numeroReferencia = generarNumeroDeuda(obj.getIdNegocio().longValue());
+            deuda.setNumeroReferencia(numeroReferencia);
 
             this.deudaRepository.persist(deuda);
 
@@ -282,6 +291,7 @@ public class DeudaService {
             abono.setFecha(LocalDateTime.now());
             abono.setDeuda(deuda);
             abono.setIdCuadreCaja(abonoDTO.getIdCuadreCaja());
+            abono.setPagoTransferencia(abonoDTO.getPagoTransferencia());
 
             this.abonoRepository.persist(abono);
 

@@ -364,7 +364,7 @@ public class NegocioRest {
     @RolesAllowed("ADMINISTRADOR")
     public Response listaNegocios() {
         try {
-            List<Negocio> negocios = negocioRepository.find("activo = ?1", true).list();
+            List<Negocio> negocios = negocioRepository.listAll();
             if (negocios.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron negocios").build();
             }
@@ -399,5 +399,24 @@ public class NegocioRest {
         }
     }
 
-
+    @PATCH
+    @Path("/activar/{id}")
+    @RolesAllowed("ADMINISTRADOR")
+    @Transactional
+    public Response activarNegocio(@PathParam("id") Integer id) {
+        try {
+            Optional<Negocio> negocioOpt = negocioRepository.findByIdOptional(id);
+            if (negocioOpt.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND).entity("Negocio no encontrado").build();
+            }
+            Negocio negocio = negocioOpt.get();
+            negocio.setActivo(true);
+            return Response.ok("Negocio desactivado exitosamente").build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("Ha ocurrido un error al desactivar el negocio")
+                    .build();
+        }
+    }
 }

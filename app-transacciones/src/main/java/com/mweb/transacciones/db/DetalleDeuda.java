@@ -32,7 +32,7 @@ public class DetalleDeuda {
     private BigDecimal total;
 
     @ManyToOne
-    @JoinColumn(name = "deuda_id", nullable = false)
+    @JoinColumn(name = "deuda_id")
     private Deuda deuda;
 
     @Column(name = "prod_codigo_barras")

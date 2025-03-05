@@ -127,6 +127,7 @@ public class CuadreCajaService {
         cuadreCaja.setSaldoFinalTransferencia(cuadreCajaDTO.getSaldoFinalTransferencia());
         cuadreCaja.setDiferencia(cuadreCajaDTO.getDiferencia());
         cuadreCaja.setValorCierre(cuadreCajaDTO.getValorCierre());
+        cuadreCaja.setValorContable(cuadreCajaDTO.getValorContable());
         cuadreCaja.setEstado(false);
         return CuadreCajaDTO.from(cuadreCaja);
     }
