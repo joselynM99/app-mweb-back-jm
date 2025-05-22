@@ -302,4 +302,22 @@ public class DeudaService {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Ha ocurrido un error al registrar el abono").build();
         }
     }
+
+    public Response obtenerAbonosPorCuadreCaja(Long idCuadreCaja) {
+        try {
+            List<Abono> abonos = abonoRepository.find("idCuadreCaja = ?1", idCuadreCaja).list();
+
+            if (abonos.isEmpty()) {
+                return Response.status(Response.Status.NOT_FOUND).entity("No se encontraron abonos para el cuadre de caja: " + idCuadreCaja).build();
+            }
+
+            List<AbonoDTO> abonosDTO = AbonoDTO.fromAbonoDTO(abonos);
+
+            return Response.ok(abonosDTO).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Ha ocurrido un error al obtener los abonos").build();
+        }
+    }
+
 }

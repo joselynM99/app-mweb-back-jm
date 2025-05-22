@@ -49,4 +49,12 @@ public class DeudaRest {
     public Response registrarAbono(AbonoDTO abonoDTO) {
         return deudaService.registrarAbono(abonoDTO);
     }
+
+    @GET
+    @Path("/abonos/por-cuadre")
+    @Authenticated
+    public Response obtenerAbonosPorCuadreCaja(@QueryParam("idCuadreCaja") Long idCuadreCaja) {
+        return deudaService.obtenerAbonosPorCuadreCaja(idCuadreCaja);
+    }
+
 }
