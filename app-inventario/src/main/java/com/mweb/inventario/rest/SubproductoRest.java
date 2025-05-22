@@ -150,6 +150,7 @@ public class SubproductoRest {
             if (subproductoOpt.isEmpty()) {
                 return Response.status(Response.Status.NOT_FOUND).entity("Subproducto no encontrado").build();
             }
+
             SubproductoDTO subproductoDTO = SubproductoDTO.from(subproductoOpt.get());
             return Response.ok(subproductoDTO).build();
 

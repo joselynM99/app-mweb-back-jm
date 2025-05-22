@@ -10,17 +10,17 @@ import com.mweb.transacciones.repo.DetalleVentaRepository;
 import com.mweb.transacciones.repo.VentaRepository;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.persistence.*;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
+import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.WebApplicationException;
 import jakarta.ws.rs.core.GenericType;
 import jakarta.ws.rs.core.Response;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
-import org.hibernate.Session;
 
 import java.math.BigDecimal;
-import java.sql.CallableStatement;
-import java.sql.Types;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -51,7 +51,6 @@ public class VentaService {
         query.setParameter("negocioId", negocioId);
         return ((Number) query.getSingleResult()).intValue();
     }
-
 
 
     @Transactional
@@ -191,18 +190,30 @@ public class VentaService {
         query.setParameter("idNegocio", idNegocio);
         Venta venta = query.getSingleResult();
 
+
         VentaRequestDTO dto = new VentaRequestDTO();
-        dto.setCliente(venta.getCliente().getIdentificacion());
+        if (venta.getCliente() != null) {
+            dto.setCliente(venta.getCliente().getIdentificacion() + " - " + venta.getCliente().getNombres() + " " + venta.getCliente().getApellidos());
+        } else {
+            dto.setCliente("SIN CLIENTE");
+        }
         dto.setUsername(venta.getUsername());
         dto.setPagoTransferencia(venta.getPagoTransferencia());
         dto.setTotal(venta.getTotal());
         dto.setIdCuadreCaja(venta.getIdCuadreCaja());
         dto.setIdNegocio(venta.getIdNegocio());
+        dto.setNumeroReferencia(venta.getNumeroReferencia());
+        dto.setFecha(venta.getFecha());
+
 
         List<ProductoCarritoDTO> detalles = venta.getDetalles().stream().map(detalle -> {
             ProductoCarritoDTO detalleDTO = new ProductoCarritoDTO();
             detalleDTO.setCantidad(detalle.getCantidad());
-            detalleDTO.setCodigoBarras(detalle.getProductoCodigo());
+            if (detalle.getProductoCodigo() != null) {
+                detalleDTO.setCodigoBarras(detalle.getProductoCodigo());
+            } else {
+                detalleDTO.setCodigoBarras(detalle.getSubProductoCodigo());
+            }
             detalleDTO.setSubtotal(detalle.getTotal());
             return detalleDTO;
         }).collect(Collectors.toList());
@@ -242,10 +253,62 @@ public class VentaService {
             VentaResumenDTO dto = new VentaResumenDTO();
             dto.setFecha(venta.getFecha());
             dto.setTotal(venta.getTotal());
+            dto.setVendedor(venta.getUsername());
             dto.setNumeroReferencia(venta.getNumeroReferencia());
             dto.setPagoTransferencia(venta.getPagoTransferencia());
             return dto;
         }).collect(Collectors.toList());
     }
+
+
+    public List<ProductoMasVendidoDTO> obtenerProductosMasVendidos(LocalDateTime fechaInicio, LocalDateTime fechaFin, Integer idNegocio, int limite) {
+        StringBuilder queryBuilder = new StringBuilder();
+        queryBuilder.append("SELECT ");
+        queryBuilder.append("COALESCE(d.productoCodigo, d.subProductoCodigo) AS codigo, ");
+        queryBuilder.append("SUM(d.cantidad) AS totalVendido ");
+        queryBuilder.append("FROM Venta v JOIN v.detalles d ");
+        queryBuilder.append("WHERE v.idNegocio = :idNegocio ");
+
+        System.out.println("ID Negocio: " + idNegocio);
+        System.out.println("Fecha Inicio: " + fechaInicio);
+        System.out.println("Fecha Fin: " + fechaFin);
+
+
+        if (fechaInicio != null) {
+            queryBuilder.append("AND v.fecha >= :fechaInicio ");
+        }
+        if (fechaFin != null) {
+            queryBuilder.append("AND v.fecha <= :fechaFin ");
+        }
+
+        queryBuilder.append("GROUP BY COALESCE(d.productoCodigo, d.subProductoCodigo) ");
+        queryBuilder.append("ORDER BY totalVendido DESC");
+
+        TypedQuery<Object[]> query = entityManager.createQuery(queryBuilder.toString(), Object[].class);
+        query.setParameter("idNegocio", idNegocio);
+
+        if (fechaInicio != null) {
+            query.setParameter("fechaInicio", fechaInicio);
+        }
+        if (fechaFin != null) {
+            query.setParameter("fechaFin", fechaFin);
+        }
+
+        // Límite de resultados
+        query.setMaxResults(limite);
+
+        List<Object[]> resultados = query.getResultList();
+        List<ProductoMasVendidoDTO> lista = new ArrayList<>();
+
+        for (Object[] fila : resultados) {
+            ProductoMasVendidoDTO dto = new ProductoMasVendidoDTO();
+            dto.setCodigo((String) fila[0]);
+            dto.setTotalVendido(((Number) fila[1]).intValue());
+            lista.add(dto);
+        }
+
+        return lista;
+    }
+
 
 }

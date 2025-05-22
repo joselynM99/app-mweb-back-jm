@@ -162,6 +162,8 @@ public class CompraService {
         dto.setTotal(compra.getTotal());
         dto.setIdCuadreCaja(compra.getIdCuadreCaja());
         dto.setIdNegocio(compra.getIdNegocio());
+        dto.setNumeroReferencia(compra.getNumeroReferencia());
+        dto.setFecha(compra.getFecha().toString());
 
         List<ProductoCarritoDTO> detalles = compra.getDetalles().stream().map(detalle -> {
             ProductoCarritoDTO detalleDTO = new ProductoCarritoDTO();
@@ -208,6 +210,7 @@ public class CompraService {
             dto.setTotal(compra.getTotal());
             dto.setNumeroReferencia(compra.getNumeroReferencia());
             dto.setPagoTransferencia(compra.getPagoTransferencia());
+            dto.setUsuario(compra.getUsername());
             return dto;
         }).collect(Collectors.toList());
     }

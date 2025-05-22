@@ -48,7 +48,7 @@ public class Usuario {
     private Negocio negocio;
 
     @ManyToOne
-    @JoinColumn(name = "usua_rol_id", nullable = false)
+    @JoinColumn(name = "usua_rol_id", nullable = true)
     private Rol rol;
 
 }

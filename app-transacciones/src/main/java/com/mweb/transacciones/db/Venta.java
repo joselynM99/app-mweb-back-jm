@@ -47,7 +47,7 @@ public class Venta {
     @JoinColumn(name = "clie_id")
     private Cliente cliente;
 
-    @Column(name = "clie_activo")
+    @Column(name = "vent_activo")
     private Boolean activo;
 
     @Column(name = "vent_numero_referencia")

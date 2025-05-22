@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-inventario
+  name: app-transacciones
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: app-inventario
+      app: app-transacciones
   template:
     metadata:
       labels:
-        app: app-inventario
+        app: app-transacciones
     spec:
       containers:
-        - name: app-inventario
-          image: nali1312/app-inventario:arm
+        - name: app-transacciones
+          image: nali1312/app-transacciones:arm  # asegúrate de haberla subido con buildx
           ports:
-            - containerPort: 8080
+            - containerPort: 9090
           env:
             - name: QUARKUS_DATASOURCE_DB_KIND
               value: "postgresql"
@@ -25,7 +25,7 @@ spec:
             - name: QUARKUS_DATASOURCE_PASSWORD
               value: "Nali1312@"
             - name: QUARKUS_DATASOURCE_JDBC_URL
-              value: "jdbc:postgresql://mweb2.postgres.database.azure.com/inventario"
+              value: "jdbc:postgresql://mweb2.postgres.database.azure.com/transacciones"
             - name: QUARKUS_DATASOURCE_JDBC_MAX_SIZE
               value: "2"
             - name: QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION
@@ -33,7 +33,7 @@ spec:
             - name: QUARKUS_LOG_CATEGORY_ORG_HIBERNATE_LEVEL
               value: "INFO"
             - name: QUARKUS_HTTP_PORT
-              value: "8080"
+              value: "9090"
             - name: QUARKUS_HTTP_CORS
               value: "true"
             - name: QUARKUS_HTTP_CORS_ORIGINS
@@ -44,6 +44,12 @@ spec:
               value: "Authorization,Content-Type,Access-Control-Allow-Origin"
             - name: QUARKUS_RESTEASY_CHARSET
               value: "UTF-8"
+            # Inventario REST client
+            - name: APP_INVENTARIO_URL
+              value: "http://app-inventario-service:8080"
+            - name: INVENTARIORESTCLIENT_MP_REST_URL
+              value: "http://app-inventario-service:8080"
+            # OIDC
             - name: QUARKUS_OIDC_AUTH_SERVER_URL
               value: "https://api.markweb.store/realms/mweb"
             - name: QUARKUS_OIDC_CLIENT_ID
@@ -54,22 +60,26 @@ spec:
               value: "https://api.markweb.store/realms/mweb"
             - name: QUARKUS_OIDC_CLIENT_CLIENT_ID
               value: "mweb-jkmoncayo"
+            - name: QUARKUS_OIDC_CLIENT_CREDENTIALS_SECRET
+              value: "QdIBNMDSELsBbCwYfxeciHPLLOZMntX8"
             - name: QUARKUS_OIDC_CLIENT_DISCOVERY_ENABLED
-              value: "false"
+              value: "true"
             - name: QUARKUS_OIDC_CLIENT_TOKEN_PATH
               value: "/protocol/openid-connect/tokens"
+            - name: QUARKUS_OIDC_APPLICATION_TYPE
+              value: "service"
             - name: KEYCLOAK_REALM
               value: "mweb"
 ---
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-inventario-service
+  name: app-transacciones-service
 spec:
   selector:
-    app: app-inventario
+    app: app-transacciones
   ports:
     - protocol: TCP
-      port: 8080
-      targetPort: 8080
+      port: 9090
+      targetPort: 9090
   type: ClusterIP

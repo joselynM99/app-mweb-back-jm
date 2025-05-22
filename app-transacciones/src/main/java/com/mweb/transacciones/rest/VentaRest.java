@@ -1,5 +1,6 @@
 package com.mweb.transacciones.rest;
 
+import com.mweb.transacciones.dtos.ProductoMasVendidoDTO;
 import com.mweb.transacciones.dtos.VentaRequestDTO;
 import com.mweb.transacciones.dtos.VentaResumenDTO;
 import com.mweb.transacciones.service.VentaService;
@@ -74,4 +75,24 @@ public class VentaRest {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Ha ocurrido un error al buscar las ventas").build();
         }
     }
+
+    @GET
+    @Path("/mas-vendidos")
+    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    public Response obtenerProductosMasVendidos(@QueryParam("fechaInicio") String fechaInicioStr,
+                                                @QueryParam("fechaFin") String fechaFinStr,
+                                                @QueryParam("idNegocio") Integer idNegocio,
+                                                @QueryParam("limite") @DefaultValue("10") int limite) {
+        try {
+            LocalDateTime fechaInicio = fechaInicioStr != null ? LocalDateTime.parse(fechaInicioStr) : null;
+            LocalDateTime fechaFin = fechaFinStr != null ? LocalDateTime.parse(fechaFinStr) : null;
+
+            List<ProductoMasVendidoDTO> productos = ventaService.obtenerProductosMasVendidos(fechaInicio, fechaFin, idNegocio, limite);
+            return Response.ok(productos).build();
+        } catch (Exception e) {
+            e.printStackTrace();
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity("Error al obtener productos más vendidos").build();
+        }
+    }
+
 }

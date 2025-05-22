@@ -4,6 +4,7 @@ import lombok.Data;
 import lombok.ToString;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
@@ -18,5 +19,7 @@ public class VentaRequestDTO {
 	private BigDecimal total;
 	private Integer idCuadreCaja;
 	private Integer idNegocio;
+	private Integer numeroReferencia;
+	private LocalDateTime fecha;
 
 }

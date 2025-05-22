@@ -13,4 +13,5 @@ public class CompraResumenDTO {
     private BigDecimal total;
     private Integer numeroReferencia;
     private Boolean pagoTransferencia;
+    private String usuario;
 }

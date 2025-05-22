@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-inventario
+  name: app-gestion-cajas
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: app-inventario
+      app: app-gestion-cajas
   template:
     metadata:
       labels:
-        app: app-inventario
+        app: app-gestion-cajas
     spec:
       containers:
-        - name: app-inventario
-          image: nali1312/app-inventario:arm
+        - name: app-gestion-cajas
+          image: nali1312/app-gestion-cajas:arm
           ports:
-            - containerPort: 8080
+            - containerPort: 9091
           env:
             - name: QUARKUS_DATASOURCE_DB_KIND
               value: "postgresql"
@@ -25,19 +25,15 @@ spec:
             - name: QUARKUS_DATASOURCE_PASSWORD
               value: "Nali1312@"
             - name: QUARKUS_DATASOURCE_JDBC_URL
-              value: "jdbc:postgresql://mweb2.postgres.database.azure.com/inventario"
+              value: "jdbc:postgresql://mweb2.postgres.database.azure.com/gestion-cajas"
             - name: QUARKUS_DATASOURCE_JDBC_MAX_SIZE
               value: "2"
-            - name: QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION
-              value: "update"
-            - name: QUARKUS_LOG_CATEGORY_ORG_HIBERNATE_LEVEL
-              value: "INFO"
             - name: QUARKUS_HTTP_PORT
-              value: "8080"
+              value: "9091"
             - name: QUARKUS_HTTP_CORS
               value: "true"
             - name: QUARKUS_HTTP_CORS_ORIGINS
-              value: "*"
+              value: ".*"
             - name: QUARKUS_HTTP_CORS_METHODS
               value: "GET,PUT,POST,DELETE,PATCH,OPTIONS"
             - name: QUARKUS_HTTP_CORS_HEADERS
@@ -64,12 +60,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-inventario-service
+  name: app-gestion-cajas-service
 spec:
   selector:
-    app: app-inventario
+    app: app-gestion-cajas
   ports:
     - protocol: TCP
-      port: 8080
-      targetPort: 8080
+      port: 9091
+      targetPort: 9091
   type: ClusterIP

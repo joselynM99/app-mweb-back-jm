@@ -147,6 +147,14 @@ public class CuadreCajaRest {
         }
     }
 
+    @GET
+    @Path("/detalle")
+    @RolesAllowed({"ADMINISTRADOR", "PROPIETARIO"})
+    public Response obtenerDetalleCierre(@QueryParam("id") Integer id) {
+        return Response.ok(cuadreCajaService.buscarCuadreCajaPorId(id)).build();
+    }
+
+
     @PUT
     @Path("/cerrar")
     @Authenticated

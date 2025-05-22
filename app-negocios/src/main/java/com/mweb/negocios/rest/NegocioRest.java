@@ -200,6 +200,7 @@ public class NegocioRest {
             }
 
             UsuarioDTO usuarioDTO = UsuarioDTO.from(usuarioOpt.get());
+            System.out.println("UsuarioDTO: " + usuarioDTO.getRol());
             return Response.ok(usuarioDTO).build();
         } catch (Exception e) {
             e.printStackTrace();

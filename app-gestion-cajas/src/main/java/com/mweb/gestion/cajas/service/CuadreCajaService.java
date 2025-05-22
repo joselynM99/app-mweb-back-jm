@@ -14,6 +14,7 @@ import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -98,20 +99,49 @@ public class CuadreCajaService {
     }
 
     public List<CuadreCajaDTO> buscarCuadreCaja(String usuario, LocalDateTime fechaInicio, LocalDateTime fechaFin, Boolean estado, Integer idNegocio) {
+
         String query = "idNegocio = ?1";
+        List<Object> parametros = new ArrayList<>();
+        parametros.add(idNegocio);
+
         if (usuario != null) {
-            query += " and usuario = ?2";
+            query += " and usuario = ?" + (parametros.size() + 1);
+            parametros.add(usuario);
         }
+
         if (fechaInicio != null && fechaFin != null) {
-            query += " and fechaApertura between ?3 and ?4";
+            query += " and fechaApertura between ?" + (parametros.size() + 1) + " and ?" + (parametros.size() + 2);
+            parametros.add(fechaInicio);
+            parametros.add(fechaFin);
+        } else if (fechaInicio != null) {
+            query += " and fechaApertura >= ?" + (parametros.size() + 1);
+            parametros.add(fechaInicio);
+        } else if (fechaFin != null) {
+            query += " and fechaApertura <= ?" + (parametros.size() + 1);
+            parametros.add(fechaFin);
         }
+
         if (estado != null) {
-            query += " and estado = ?5";
+            query += " and estado = ?" + (parametros.size() + 1);
+            parametros.add(estado);
         }
+
         query += " order by fechaApertura";
-        List<CuadreCaja> cuadreCajas = cuadreCajaRepository.find(query, idNegocio, usuario, fechaInicio, fechaFin, estado).list();
-        return cuadreCajas.stream().map(CuadreCajaDTO::from).collect(Collectors.toList());
+
+        List<CuadreCaja> cuadreCajas = cuadreCajaRepository.find(query, parametros.toArray()).list();
+        return cuadreCajas.stream()
+                .map(CuadreCajaDTO::from)
+                .collect(Collectors.toList());
     }
+
+    public CuadreCajaDTO buscarCuadreCajaPorId(Integer id) {
+        CuadreCaja cuadreCaja = cuadreCajaRepository.findById(id);
+        if (cuadreCaja == null) {
+            throw new IllegalArgumentException("Cierre de caja no encontrado para ID: " + id);
+        }
+        return CuadreCajaDTO.from(cuadreCaja);
+    }
+
 
     public CuadreCajaDTO cerrarCaja(CuadreCajaDTO cuadreCajaDTO) {
         CuadreCaja cuadreCaja = cuadreCajaRepository.findById(cuadreCajaDTO.getId());

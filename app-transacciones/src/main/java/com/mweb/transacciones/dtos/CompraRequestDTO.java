@@ -17,5 +17,7 @@ public class CompraRequestDTO {
 	private BigDecimal total;
 	private Integer idCuadreCaja;
 	private Integer idNegocio;
+	private Integer numeroReferencia;
+	private String fecha;
 
 }

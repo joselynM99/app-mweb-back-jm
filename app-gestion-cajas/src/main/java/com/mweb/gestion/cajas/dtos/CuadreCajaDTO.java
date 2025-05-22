@@ -27,6 +27,8 @@ public class CuadreCajaDTO {
     private BigDecimal valorApertura;
     private boolean estado;
     private Integer cajaId;
+    private String cajaNombre;
+
 
     public static CuadreCajaDTO from(CuadreCaja cuadreCaja) {
         CuadreCajaDTO dto = new CuadreCajaDTO();
@@ -47,6 +49,11 @@ public class CuadreCajaDTO {
         dto.setValorApertura(cuadreCaja.getValorApertura());
         dto.setEstado(cuadreCaja.isEstado());
         dto.setCajaId(cuadreCaja.getCaja().getId());
+
+        if (cuadreCaja.getCaja() != null) {
+            dto.setCajaNombre(cuadreCaja.getCaja().getNombre());
+        }
+
         return dto;
     }
 

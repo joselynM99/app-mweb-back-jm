@@ -1,22 +1,22 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: app-inventario
+  name: app-negocios
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: app-inventario
+      app: app-negocios
   template:
     metadata:
       labels:
-        app: app-inventario
+        app: app-negocios
     spec:
       containers:
-        - name: app-inventario
-          image: nali1312/app-inventario:arm
+        - name: app-negocios
+          image: nali1312/app-negocios:arm  # ? Asegúrate de tener esta imagen subida con buildx
           ports:
-            - containerPort: 8080
+            - containerPort: 9092
           env:
             - name: QUARKUS_DATASOURCE_DB_KIND
               value: "postgresql"
@@ -25,7 +25,7 @@ spec:
             - name: QUARKUS_DATASOURCE_PASSWORD
               value: "Nali1312@"
             - name: QUARKUS_DATASOURCE_JDBC_URL
-              value: "jdbc:postgresql://mweb2.postgres.database.azure.com/inventario"
+              value: "jdbc:postgresql://mweb2.postgres.database.azure.com/negocios"
             - name: QUARKUS_DATASOURCE_JDBC_MAX_SIZE
               value: "2"
             - name: QUARKUS_HIBERNATE_ORM_DATABASE_GENERATION
@@ -33,7 +33,7 @@ spec:
             - name: QUARKUS_LOG_CATEGORY_ORG_HIBERNATE_LEVEL
               value: "INFO"
             - name: QUARKUS_HTTP_PORT
-              value: "8080"
+              value: "9092"
             - name: QUARKUS_HTTP_CORS
               value: "true"
             - name: QUARKUS_HTTP_CORS_ORIGINS
@@ -64,12 +64,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-  name: app-inventario-service
+  name: app-negocios-service
 spec:
   selector:
-    app: app-inventario
+    app: app-negocios
   ports:
     - protocol: TCP
-      port: 8080
-      targetPort: 8080
+      port: 9092
+      targetPort: 9092
   type: ClusterIP
