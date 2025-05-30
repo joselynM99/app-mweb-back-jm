@@ -83,3 +83,8 @@ spec:
       port: 9090
       targetPort: 9090
   type: ClusterIP
+  kubectl scale deployment app-negocios --replicas=3
+  kubectl get pods -o wide
+  kubectl logs app-inventario-xxx
+  kubectl delete pod app-transacciones-xxx
+  kubectl apply -f app-transacciones-deployment.yml
